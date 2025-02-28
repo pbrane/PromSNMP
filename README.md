@@ -1,4 +1,39 @@
-# PromSNMP
+# PromSNMP [![promsnmp-build](https://github.com/pbrane/PromSNMP/actions/workflows/promsnmp-build.yaml/badge.svg)](https://github.com/pbrane/PromSNMP/actions/workflows/promsnmp-build.yaml)
+
+
+## 👩‍🏭 Build from source
+
+Check out the source code with
+
+```shell
+git clone https://github.com/pbrane/PromSNMP.git
+```
+
+Compile and assemble the JAR file including the test suite
+
+```shell
+make
+```
+
+Build a Docker container image in your local registry
+
+```shell
+make oci
+```
+
+## 🕹️ Run the application
+
+Start the application locally
+
+```shell
+java -jar target/promsnmp-*.jar
+```
+
+Start the application using Docker
+
+```shell
+docker run --rm -p "8082:8080/tcp" local/promsnmp:0.0.1-SNAPSHOT
+```
 
 ## https://start.spring.io 
 <img width="1354" alt="Pasted Graphic" src="https://github.com/user-attachments/assets/6f16a6de-af22-493b-8b3f-813c681fe273" />
