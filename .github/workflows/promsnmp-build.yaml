@@ -1,0 +1,45 @@
+---
+name: promsnmp-build
+run-name: Build and run test suites
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+      - name: Set version number, data and short git hash
+        run: |
+          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> ${GITHUB_ENV}
+          echo "SHORT_GIT_SHA=$(git rev-parse --short HEAD)" >> ${GITHUB_ENV}
+          echo "BUILD_DATE"=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> ${GITHUB_ENV}
+      - name: Build and run tests
+        run: make
+      - name: Persist JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: promsnmp-jar
+          path: |
+            target/*.jar
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            DATE=${{ env.BUILD_DATE }}
+            GIT_SHORT_HASH=${{ env.SHORT_GIT_SHA }}
+            VERSION=${{ env.VERSION }}
+          tags: promsnmp:${{ env.SHORT_GIT_SHA }}
