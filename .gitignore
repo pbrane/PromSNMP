@@ -1,33 +1,76 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
+# IntelliJ project-specific files
+/.idea/**/workspace.xml
+/.idea/**/tasks.xml
+/.idea/**/usage.statistics.xml
+/.idea/**/dictionaries
+/.idea/**/shelf
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.jmod
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+### Gradle ###
+.gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+build/
 
-### VS Code ###
-.vscode/
+### Logs ###
+logs/
+*.log
+log/
+*.log.*
+
+### Spring Boot ###
+/bin/
+/build/
+/BOOT-INF/
+/*.log
+/*.pid
+/*.gz
+
+### Environment Files ###
+.env
+*.env
+
+### Node Modules (if using frontend assets) ###
+node_modules/
+
+### Lombok ###
+.lombok
+
+### Other ###
+*.swp
+*.swo
+*.bak
+*.tmp
+*.~*
+
