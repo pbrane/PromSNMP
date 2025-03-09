@@ -1,7 +1,7 @@
 services:
   promsnmp:
     container_name: promsnmp
-    image: pbranestrategy/promsnmp:0.0.1
+    image: pbranestrategy/promsnmp:0.0.2
     environment:
       - SERVER_PORT=8080
     build:
