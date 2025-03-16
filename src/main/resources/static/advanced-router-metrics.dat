@@ -1,0 +1,137 @@
+# HELP ifHCInOctets The total number of octets received on the interface (High Capacity).
+# TYPE ifHCInOctets counter
+ifHCInOctets{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0", ifAlias="WAN-Link"} 1532687459326
+ifHCInOctets{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1", ifAlias="LAN-Primary"} 843215678923
+ifHCInOctets{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2", ifAlias="DMZ"} 356789012345
+ifHCInOctets{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3", ifAlias="Management"} 12356789034
+
+# HELP ifHCOutOctets The total number of octets transmitted out of the interface (High Capacity).
+# TYPE ifHCOutOctets counter
+ifHCOutOctets{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0", ifAlias="WAN-Link"} 9876543459876
+ifHCOutOctets{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1", ifAlias="LAN-Primary"} 543219876543
+ifHCOutOctets{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2", ifAlias="DMZ"} 214365478912
+ifHCOutOctets{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3", ifAlias="Management"} 5436789123
+
+# HELP ifHCInUcastPkts Number of unicast packets received.
+# TYPE ifHCInUcastPkts counter
+ifHCInUcastPkts{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 2345678901
+ifHCInUcastPkts{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 1234567890
+ifHCInUcastPkts{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 543678901
+ifHCInUcastPkts{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 23456789
+
+# HELP ifHCOutUcastPkts Number of unicast packets transmitted.
+# TYPE ifHCOutUcastPkts counter
+ifHCOutUcastPkts{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 1987654321
+ifHCOutUcastPkts{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 987654321
+ifHCOutUcastPkts{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 432165789
+ifHCOutUcastPkts{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 12345678
+
+# HELP ifInErrors Number of inbound packets with errors.
+# TYPE ifInErrors counter
+ifInErrors{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 45
+ifInErrors{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 12
+ifInErrors{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 7
+ifInErrors{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 2
+
+# HELP ifOutErrors Number of outbound packets with errors.
+# TYPE ifOutErrors counter
+ifOutErrors{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 23
+ifOutErrors{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 8
+ifOutErrors{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 3
+ifOutErrors{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 1
+
+# HELP ifOperStatus Operational status of the interface (1=up, 2=down, 3=testing).
+# TYPE ifOperStatus gauge
+ifOperStatus{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 1
+ifOperStatus{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 1
+ifOperStatus{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 1
+ifOperStatus{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 1
+
+# HELP ifAdminStatus Administrative status of the interface (1=up, 2=down, 3=testing).
+# TYPE ifAdminStatus gauge
+ifAdminStatus{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 1
+ifAdminStatus{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 1
+ifAdminStatus{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 1
+ifAdminStatus{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 1
+
+# HELP ifHighSpeed Interface speed in Mbps.
+# TYPE ifHighSpeed gauge
+ifHighSpeed{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 1000
+ifHighSpeed{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 1000
+ifHighSpeed{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 1000
+ifHighSpeed{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 1000
+
+# HELP ifLastChange The value of sysUpTime at the time the interface entered its current operational state.
+# TYPE ifLastChange gauge
+ifLastChange{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 123456
+ifLastChange{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 123456
+ifLastChange{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 234567
+ifLastChange{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 345678
+
+# HELP ifInDiscards Number of inbound packets discarded.
+# TYPE ifInDiscards counter
+ifInDiscards{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 234
+ifInDiscards{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 123
+ifInDiscards{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 56
+ifInDiscards{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 12
+
+# HELP ifOutDiscards Number of outbound packets discarded.
+# TYPE ifOutDiscards counter
+ifOutDiscards{instance="router.example.com", ifIndex="1", ifName="GigabitEthernet0/0/0"} 345
+ifOutDiscards{instance="router.example.com", ifIndex="2", ifName="GigabitEthernet0/0/1"} 234
+ifOutDiscards{instance="router.example.com", ifIndex="3", ifName="GigabitEthernet0/0/2"} 45
+ifOutDiscards{instance="router.example.com", ifIndex="4", ifName="GigabitEthernet0/0/3"} 8
+
+# HELP sysUpTime System uptime in timeticks (1/100th of a second).
+# TYPE sysUpTime gauge
+sysUpTime{instance="router.example.com"} 8654321
+
+# HELP cpuUsage CPU usage percentage.
+# TYPE cpuUsage gauge
+cpuUsage{instance="router.example.com", cpu="0"} 42.5
+cpuUsage{instance="router.example.com", cpu="1"} 38.2
+
+# HELP memoryUsage Memory usage percentage.
+# TYPE memoryUsage gauge
+memoryUsage{instance="router.example.com"} 65.3
+
+# HELP memoryFree Available memory in bytes.
+# TYPE memoryFree gauge
+memoryFree{instance="router.example.com"} 1073741824
+
+# HELP memoryTotal Total memory in bytes.
+# TYPE memoryTotal gauge
+memoryTotal{instance="router.example.com"} 4294967296
+
+# HELP temperatureSensor Temperature in Celsius.
+# TYPE temperatureSensor gauge
+temperatureSensor{instance="router.example.com", sensor="CPU"} 48.2
+temperatureSensor{instance="router.example.com", sensor="Intake"} 32.5
+temperatureSensor{instance="router.example.com", sensor="Exhaust"} 38.7
+
+# HELP fanSpeed Fan speed in RPM.
+# TYPE fanSpeed gauge
+fanSpeed{instance="router.example.com", fan="Fan1"} 3200
+fanSpeed{instance="router.example.com", fan="Fan2"} 3150
+
+# HELP powerSupplyStatus Power supply status (1=normal, 2=warning, 3=critical).
+# TYPE powerSupplyStatus gauge
+powerSupplyStatus{instance="router.example.com", psu="PSU1"} 1
+powerSupplyStatus{instance="router.example.com", psu="PSU2"} 1
+
+# HELP bgpPeerState BGP peer state (1=idle, 2=connect, 3=active, 4=opensent, 5=openconfirm, 6=established).
+# TYPE bgpPeerState gauge
+bgpPeerState{instance="router.example.com", peer="192.0.2.1"} 6
+bgpPeerState{instance="router.example.com", peer="192.0.2.2"} 6
+bgpPeerState{instance="router.example.com", peer="192.0.2.3"} 1
+
+# HELP bgpPeerPrefixesAccepted Number of prefixes accepted from BGP peer.
+# TYPE bgpPeerPrefixesAccepted gauge
+bgpPeerPrefixesAccepted{instance="router.example.com", peer="192.0.2.1"} 547
+bgpPeerPrefixesAccepted{instance="router.example.com", peer="192.0.2.2"} 328
+bgpPeerPrefixesAccepted{instance="router.example.com", peer="192.0.2.3"} 0
+
+# HELP ospfNbrState OSPF neighbor state (1=down, 2=attempt, 3=init, 4=2-way, 5=exstart, 6=exchange, 7=loading, 8=full).
+# TYPE ospfNbrState gauge
+ospfNbrState{instance="router.example.com", neighbor="192.0.3.1"} 8
+ospfNbrState{instance="router.example.com", neighbor="192.0.3.2"} 8
