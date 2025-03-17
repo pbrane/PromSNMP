@@ -1,0 +1,82 @@
+[
+  {
+    "targets": [
+      "router-1.example.com",
+      "router-2.example.com",
+      "router-3.example.com",
+      "router-4.example.com",
+      "router-5.example.com",
+      "router-6.example.com",
+      "router-7.example.com",
+      "router-8.example.com",
+      "router-9.example.com",
+      "router-10.example.com"
+    ],
+    "labels": {
+      "job": "cisco-snmp",
+      "device_type": "router",
+      "snmp_version": "2c",
+      "community": "public"
+    }
+  },
+  {
+    "targets": [
+      "switch-1.example.com",
+      "switch-2.example.com",
+      "switch-3.example.com",
+      "switch-4.example.com",
+      "switch-5.example.com",
+      "switch-6.example.com",
+      "switch-7.example.com",
+      "switch-8.example.com",
+      "switch-9.example.com",
+      "switch-10.example.com",
+      "switch-11.example.com",
+      "switch-12.example.com",
+      "switch-13.example.com",
+      "switch-14.example.com",
+      "switch-15.example.com",
+      "switch-16.example.com",
+      "switch-17.example.com",
+      "switch-18.example.com",
+      "switch-19.example.com",
+      "switch-20.example.com",
+      "switch-21.example.com",
+      "switch-22.example.com",
+      "switch-23.example.com",
+      "switch-24.example.com",
+      "switch-25.example.com",
+      "switch-26.example.com",
+      "switch-27.example.com",
+      "switch-28.example.com",
+      "switch-29.example.com",
+      "switch-30.example.com",
+      "switch-31.example.com",
+      "switch-32.example.com",
+      "switch-33.example.com",
+      "switch-34.example.com",
+      "switch-35.example.com",
+      "switch-36.example.com",
+      "switch-37.example.com",
+      "switch-38.example.com",
+      "switch-39.example.com",
+      "switch-40.example.com",
+      "switch-41.example.com",
+      "switch-42.example.com",
+      "switch-43.example.com",
+      "switch-44.example.com",
+      "switch-45.example.com",
+      "switch-46.example.com",
+      "switch-47.example.com",
+      "switch-48.example.com",
+      "switch-49.example.com",
+      "switch-50.example.com"
+    ],
+    "labels": {
+      "job": "cisco-snmp",
+      "device_type": "switch",
+      "snmp_version": "2c",
+      "community": "public"
+    }
+  }
+]
