@@ -62,20 +62,10 @@ ifOutDiscards{instance="switch-1.example.com", ifIndex="1"} 15
 ifOutErrors{instance="router-1.example.com", ifIndex="1"} 2
 ifOutErrors{instance="switch-1.example.com", ifIndex="1"} 4
 
-# HELP ifDescr Interface description.
-# TYPE ifDescr gauge
-ifDescr{instance="router-1.example.com", ifIndex="1"} "GigabitEthernet0/0"
-ifDescr{instance="switch-1.example.com", ifIndex="1"} "FastEthernet1/0/1"
-
-# HELP ifName Interface name.
-# TYPE ifName gauge
-ifName{instance="router-1.example.com", ifIndex="1"} "Gig0/0"
-ifName{instance="switch-1.example.com", ifIndex="1"} "Fa1/0/1"
-
-# HELP ifAlias Interface alias (user-defined).
-# TYPE ifAlias gauge
-ifAlias{instance="router-1.example.com", ifIndex="1"} "WAN Link"
-ifAlias{instance="switch-1.example.com", ifIndex="1"} "Uplink to Core"
+# HELP interface_info Interface information (metadata)
+# TYPE interface_info gauge
+interface_info{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 1
+interface_info{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 1
 
 # HELP ifHighSpeed Interface speed in Mbps.
 # TYPE ifHighSpeed gauge

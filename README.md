@@ -35,6 +35,38 @@ Start the application using Docker
 docker run --rm -p "8082:8080/tcp" local/promsnmp:0.0.1-SNAPSHOT
 ```
 
+## 🔌 API Endpoints
+
+The application exposes the following endpoints:
+
+| Endpoint                     | Method | Description                                       |
+|------------------------------|--------|---------------------------------------------------|
+| `/promSnmp/hello`            | GET    | Returns a simple "Hello World" response           |
+| `/promSnmp/sample`           | GET    | Returns sample Prometheus metrics from static file |
+| `/promSnmp/router`           | GET    | Returns router metrics from static file           |
+| `/promSnmp/metrics/{type}`   | GET    | Returns filtered metrics by type (optional query param: `instance`) |
+| `/promSnmp/direct`           | GET    | Returns dynamically generated Prometheus metrics for all routers |
+| `/promSnmp/direct/{routerId}`| GET    | Returns metrics for a specific router (optional query param: `type`) |
+
+## 📊 Dynamic Metrics
+
+The application provides two types of metrics:
+
+1. **Static Metrics** (`/promSnmp/sample` and `/promSnmp/router`):
+   - Fixed values from static data files
+   - Consistent between requests
+   - Useful for testing and initial setup
+
+2. **Dynamic Metrics** (`/promSnmp/direct` and `/promSnmp/direct/{routerId}`):
+   - Generated on-the-fly with randomized values
+   - Values change on each request, simulating real network devices
+   - Includes randomized:
+     - Traffic counters (varying between 100GB and 5TB)
+     - Interface status (10% chance of interface being down)
+     - Error rates (20% chance of having errors)
+     - System metrics (CPU, memory, temperature) with realistic variations
+   - Use these endpoints for testing dynamic dashboards and alerts
+
 ## https://start.spring.io 
 <img width="1354" alt="Pasted Graphic" src="https://github.com/user-attachments/assets/6f16a6de-af22-493b-8b3f-813c681fe273" />
 

@@ -1,7 +1,7 @@
 services:
   promsnmp:
     container_name: promsnmp
-    image: pbranestrategy/promsnmp:0.0.2
+    image: local/promsnmp:0.0.2
     environment:
       - SERVER_PORT=8080
     build:
@@ -13,7 +13,7 @@ services:
       - 8080:8080
     networks:
       - backend
-    #    restart: unless-stopped
+    restart: unless-stopped
     profiles:
       - unsecured
       - default
