@@ -29,7 +29,6 @@ public class DemoController {
         return ResponseEntity.ok("Hello World");
     }
 
-    //fixme: improve service layer to do filtering that is currently in the command package
     @GetMapping("/sample")
     public ResponseEntity<String> sampleData(
             @RequestParam(required = false)
