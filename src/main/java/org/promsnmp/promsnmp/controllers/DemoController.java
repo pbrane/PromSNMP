@@ -8,7 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/promSnmp")
@@ -26,14 +29,19 @@ public class DemoController {
         return ResponseEntity.ok("Hello World");
     }
 
+    //fixme: improve service layer to do filtering that is currently in the command package
     @GetMapping("/sample")
-    public ResponseEntity<String> sampleData() {
-        return promSnmpService.readMetricsFile()
-                .map(promSnmpService::formatMetrics)
+    public ResponseEntity<String> sampleData(
+            @RequestParam(required = false)
+            String instance,
+            @RequestParam(required = false, defaultValue = "false")
+            Boolean regex ) {
+
+        return promSnmpService.getFilteredOutput(regex, instance)
                 .map(metrics -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                         .body(metrics))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Error reading file"));
     }
 
@@ -43,7 +51,7 @@ public class DemoController {
                 .map(services -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .body(services))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("{\"error\": \"File not found\"}"));
     }
 }

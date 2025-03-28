@@ -5,8 +5,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.Optional;
 
 @ShellComponent
 public class PromSnmpCommands {
@@ -23,48 +22,11 @@ public class PromSnmpCommands {
     }
 
     @ShellMethod(key = "sample", value = "Displays sample metric data, optionally filtered by instance name.")
-    public String sampleData(
+    public Optional<String> sampleData(
             @ShellOption(defaultValue = "false", help = "Treat the instance filter as a regular expression.") boolean regex,
             @ShellOption(defaultValue = ShellOption.NULL, help = "Optional instance name to filter (e.g., router-1.example.com)") String instance
     ) {
-        return promSnmpService.readMetricsFile()
-                .map(promSnmpService::formatMetrics)
-                .map(metrics -> filterByInstance(metrics, instance, regex))
-                .orElse("Error reading file");
-    }
-
-    private String filterByInstance(String metrics, String instance, boolean regex) {
-        if (instance == null || instance.isBlank()) {
-            return metrics;
-        }
-
-        StringBuilder filtered = new StringBuilder();
-        String[] lines = metrics.split("\n");
-
-        Pattern pattern = null;
-        if (regex) {
-            try {
-                pattern = Pattern.compile(instance);
-            } catch (PatternSyntaxException e) {
-                return "Invalid regular expression: " + instance;
-            }
-        }
-
-        for (String line : lines) {
-            if (line.isBlank() || line.startsWith("# HELP") || line.startsWith("# TYPE")) {
-                filtered.append(line).append("\n");
-            } else {
-                boolean instanceMatch = regex
-                        ? pattern.matcher(line).find()
-                        : line.contains("instance=\"" + instance + "\"");
-
-                if (instanceMatch) {
-                    filtered.append(line).append("\n");
-                }
-            }
-        }
-
-        return filtered.toString();
+        return promSnmpService.getFilteredOutput(regex, instance);
     }
 
 
