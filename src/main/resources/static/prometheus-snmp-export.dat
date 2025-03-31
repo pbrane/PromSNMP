@@ -1,85 +1,69 @@
+
 # HELP ifHCInOctets The total number of octets received on the interface (High Capacity).
 # TYPE ifHCInOctets counter
-ifHCInOctets{instance="router-1.example.com", ifIndex="1"} 12345678901234
-ifHCInOctets{instance="router-1.example.com", ifIndex="2"} 23456789012345
-ifHCInOctets{instance="switch-1.example.com", ifIndex="1"} 98765432101234
-ifHCInOctets{instance="switch-1.example.com", ifIndex="2"} 87654321012345
+ifHCInOctets{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 12345678901234
+ifHCInOctets{instance="router-1.example.com", ifIndex="2", ifDescr="GigabitEthernet0/1", ifName="Gig0/1", ifAlias="Uplink to Server"} 23456789012345
+ifHCInOctets{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 98765432101234
+ifHCInOctets{instance="switch-1.example.com", ifIndex="2", ifDescr="FastEthernet1/0/2", ifName="Fa1/0/2", ifAlias="Uplink to ISP"} 87654321012345
 
 # HELP ifHCOutOctets The total number of octets transmitted out of the interface (High Capacity).
 # TYPE ifHCOutOctets counter
-ifHCOutOctets{instance="router-1.example.com", ifIndex="1"} 22334455667788
-ifHCOutOctets{instance="router-1.example.com", ifIndex="2"} 33445566778899
-ifHCOutOctets{instance="switch-1.example.com", ifIndex="1"} 11223344556677
-ifHCOutOctets{instance="switch-1.example.com", ifIndex="2"} 77889900112233
+ifHCOutOctets{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 22334455667788
+ifHCOutOctets{instance="router-1.example.com", ifIndex="2", ifDescr="GigabitEthernet0/1", ifName="Gig0/1", ifAlias="Uplink to Server"} 33445566778899
+ifHCOutOctets{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 11223344556677
+ifHCOutOctets{instance="switch-1.example.com", ifIndex="2", ifDescr="FastEthernet1/0/2", ifName="Fa1/0/2", ifAlias="Uplink to ISP"} 77889900112233
 
 # HELP ifHCInUcastPkts Number of unicast packets received.
 # TYPE ifHCInUcastPkts counter
-ifHCInUcastPkts{instance="router-1.example.com", ifIndex="1"} 87654321
-ifHCInUcastPkts{instance="switch-1.example.com", ifIndex="1"} 98765432
+ifHCInUcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 87654321
+ifHCInUcastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 98765432
 
 # HELP ifHCOutUcastPkts Number of unicast packets transmitted.
 # TYPE ifHCOutUcastPkts counter
-ifHCOutUcastPkts{instance="router-1.example.com", ifIndex="1"} 76543210
-ifHCOutUcastPkts{instance="switch-1.example.com", ifIndex="1"} 87654321
+ifHCOutUcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 76543210
+ifHCOutUcastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 87654321
 
 # HELP ifHCInMulticastPkts Number of multicast packets received.
 # TYPE ifHCInMulticastPkts counter
-ifHCInMulticastPkts{instance="router-1.example.com", ifIndex="1"} 3456789
-ifHCInMulticastPkts{instance="switch-1.example.com", ifIndex="1"} 4567890
+ifHCInMulticastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 3456789
+ifHCInMulticastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 4567890
 
 # HELP ifHCOutMulticastPkts Number of multicast packets transmitted.
 # TYPE ifHCOutMulticastPkts counter
-ifHCOutMulticastPkts{instance="router-1.example.com", ifIndex="1"} 2345678
-ifHCOutMulticastPkts{instance="switch-1.example.com", ifIndex="1"} 3456789
+ifHCOutMulticastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 2345678
+ifHCOutMulticastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 3456789
 
 # HELP ifHCInBroadcastPkts Number of broadcast packets received.
 # TYPE ifHCInBroadcastPkts counter
-ifHCInBroadcastPkts{instance="router-1.example.com", ifIndex="1"} 123456
-ifHCInBroadcastPkts{instance="switch-1.example.com", ifIndex="1"} 234567
+ifHCInBroadcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 123456
+ifHCInBroadcastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 234567
 
 # HELP ifHCOutBroadcastPkts Number of broadcast packets transmitted.
 # TYPE ifHCOutBroadcastPkts counter
-ifHCOutBroadcastPkts{instance="router-1.example.com", ifIndex="1"} 112233
-ifHCOutBroadcastPkts{instance="switch-1.example.com", ifIndex="1"} 223344
+ifHCOutBroadcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 112233
+ifHCOutBroadcastPkts{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 223344
 
 # HELP ifInDiscards Number of inbound packets discarded.
 # TYPE ifInDiscards counter
-ifInDiscards{instance="router-1.example.com", ifIndex="1"} 10
-ifInDiscards{instance="switch-1.example.com", ifIndex="1"} 20
+ifInDiscards{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 10
+ifInDiscards{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 20
 
 # HELP ifInErrors Number of inbound packets with errors.
 # TYPE ifInErrors counter
-ifInErrors{instance="router-1.example.com", ifIndex="1"} 5
-ifInErrors{instance="switch-1.example.com", ifIndex="1"} 3
+ifInErrors{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 5
+ifInErrors{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 3
 
 # HELP ifOutDiscards Number of outbound packets discarded.
 # TYPE ifOutDiscards counter
-ifOutDiscards{instance="router-1.example.com", ifIndex="1"} 8
-ifOutDiscards{instance="switch-1.example.com", ifIndex="1"} 15
+ifOutDiscards{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 8
+ifOutDiscards{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 15
 
 # HELP ifOutErrors Number of outbound packets with errors.
 # TYPE ifOutErrors counter
-ifOutErrors{instance="router-1.example.com", ifIndex="1"} 2
-ifOutErrors{instance="switch-1.example.com", ifIndex="1"} 4
-
-# HELP ifDescr Interface description.
-# TYPE ifDescr gauge
-ifDescr{instance="router-1.example.com", ifIndex="1"} "GigabitEthernet0/0"
-ifDescr{instance="switch-1.example.com", ifIndex="1"} "FastEthernet1/0/1"
-
-# HELP ifName Interface name.
-# TYPE ifName gauge
-ifName{instance="router-1.example.com", ifIndex="1"} "Gig0/0"
-ifName{instance="switch-1.example.com", ifIndex="1"} "Fa1/0/1"
-
-# HELP ifAlias Interface alias (user-defined).
-# TYPE ifAlias gauge
-ifAlias{instance="router-1.example.com", ifIndex="1"} "WAN Link"
-ifAlias{instance="switch-1.example.com", ifIndex="1"} "Uplink to Core"
+ifOutErrors{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 2
+ifOutErrors{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 4
 
 # HELP ifHighSpeed Interface speed in Mbps.
 # TYPE ifHighSpeed gauge
-ifHighSpeed{instance="router-1.example.com", ifIndex="1"} 1000
-ifHighSpeed{instance="switch-1.example.com", ifIndex="1"} 100
-
-
+ifHighSpeed{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 1000
+ifHighSpeed{instance="switch-1.example.com", ifIndex="1", ifDescr="FastEthernet1/0/1", ifName="Fa1/0/1", ifAlias="Uplink to Core"} 100
