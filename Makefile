@@ -33,7 +33,7 @@ deps-oci:
 
 .PHONY promsnmp:
 promsnmp: deps-build
-	mvn --batch-mode --update-snapshots verify
+	mvn --batch-mode -Dspring.shell.interactive.enabled="false" --update-snapshots verify
 
 .PHONY oci:
 oci: deps-oci promsnmp
