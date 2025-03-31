@@ -32,8 +32,21 @@ java -jar target/promsnmp-*.jar
 Start the application using Docker
 
 ```shell
-docker run --rm -p "8082:8080/tcp" local/promsnmp:0.0.1-SNAPSHOT
+docker run --init --rm -p "8082:8080/tcp" local/promsnmp:$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 ```
+
+## 🎢 Deployment playground
+
+You can find in the development folder a stack with Prometheus and Grafana.
+
+```shell
+cd deployment
+docker compose up -d
+```
+Endpoints:
+* Grafana: http://localhost:3000, login admin, password admin
+* Prometheus: http://localhost:9090
+* PromSNMP: http://localhost:8080
 
 ## https://start.spring.io 
 <img width="1354" alt="Pasted Graphic" src="https://github.com/user-attachments/assets/6f16a6de-af22-493b-8b3f-813c681fe273" />
