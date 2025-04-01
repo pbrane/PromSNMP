@@ -26,13 +26,13 @@ public class PromSnmpCommands {
             @ShellOption(defaultValue = "false", help = "Treat the instance filter as a regular expression.") boolean regex,
             @ShellOption(defaultValue = ShellOption.NULL, help = "Optional instance name to filter (e.g., router-1.example.com)") String instance
     ) {
-        return promSnmpService.readMetrics(instance, regex);
+        return promSnmpService.getMetrics(instance, regex);
     }
 
 
     @ShellMethod(key = "services", value = "Displays services from prometheus-snmp-services.json")
     public String sampleServices() {
-        return promSnmpService.readServices()
+        return promSnmpService.getServices()
                 .orElse("{\"error\": \"File not found\"}");
     }
 }

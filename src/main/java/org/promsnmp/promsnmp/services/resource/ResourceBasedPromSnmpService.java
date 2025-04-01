@@ -1,4 +1,4 @@
-package org.promsnmp.promsnmp.services.demo;
+package org.promsnmp.promsnmp.services.resource;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -18,51 +17,41 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class PromSnmpServiceDemo implements PromSnmpService {
+public class ResourceBasedPromSnmpService implements PromSnmpService {
 
-    private final PromSnmpRepository demoRepository;
+    private final PromSnmpRepository repository;
 
-    public PromSnmpServiceDemo(@Qualifier("configuredRepo") PromSnmpRepository repository) {
-        this.demoRepository = repository;
+    public ResourceBasedPromSnmpService(@Qualifier("configuredRepo") PromSnmpRepository repository) {
+        this.repository = repository;
     }
 
     @Override
     public Optional<String> getServices() {
-        Resource demoResource = demoRepository.readServices();
+        try {
+            Resource resource = repository.readServices();
+            if (!resource.exists()) return Optional.empty();
 
-        if (demoResource == null || !demoResource.exists()) {
-            return Optional.empty();
-        }
-
-        try (InputStream is = demoResource.getInputStream()) {
-            return Optional.of(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+            return Optional.of(new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             return Optional.empty();
         }
     }
-
 
     @Override
     public Optional<String> getMetrics(String instance, boolean regex) {
-        return Optional.of(deriveMetrics()
-                .map(this::formatMetrics)
-                .map(metrics -> filterByInstance(metrics, instance, regex))
-                .orElse("Error reading metrics"));
-    }
-
-    private Optional<String> deriveMetrics() {
-        Resource demoResource = demoRepository.readMetrics(null);
-
-        if (demoResource == null) {
-            return Optional.empty();
+        Resource instanceResource = repository.readMetrics(instance);
+        if (!instanceResource.exists()) {
+            return Optional.of("Instance file not found: " + instance);
         }
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(demoResource.getInputStream(), StandardCharsets.UTF_8))) {
+                new InputStreamReader(instanceResource.getInputStream(), StandardCharsets.UTF_8))) {
 
-            return Optional.of(reader.lines().collect(Collectors.joining("\n")));
+            String metrics = reader.lines().collect(Collectors.joining("\n"));
+            String formatted = formatMetrics(metrics);
+            return Optional.of(filterByInstance(formatted, instance, regex));
         } catch (IOException e) {
-            return Optional.empty();
+            return Optional.of("Error reading instance metrics for " + instance);
         }
     }
 
@@ -85,7 +74,7 @@ public class PromSnmpServiceDemo implements PromSnmpService {
             try {
                 pattern = Pattern.compile(instance);
             } catch (PatternSyntaxException e) {
-                return "Invalid regular expression: " + instance;
+                return "Invalid regex pattern: " + instance;
             }
         }
 
@@ -93,11 +82,11 @@ public class PromSnmpServiceDemo implements PromSnmpService {
             if (line.isBlank() || line.startsWith("# HELP") || line.startsWith("# TYPE")) {
                 filtered.append(line).append("\n");
             } else {
-                boolean instanceMatch = regex
+                boolean match = regex
                         ? pattern.matcher(line).find()
                         : line.contains("instance=\"" + instance + "\"");
 
-                if (instanceMatch) {
+                if (match) {
                     filtered.append(line).append("\n");
                 }
             }
