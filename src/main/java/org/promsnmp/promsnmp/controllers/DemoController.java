@@ -25,7 +25,7 @@ public class DemoController {
         return ResponseEntity.ok("Hello World");
     }
 
-    @GetMapping("/sample")
+    @GetMapping("/metrics")
     public ResponseEntity<String> sampleData(
             @RequestParam(required = false)
             String instance,

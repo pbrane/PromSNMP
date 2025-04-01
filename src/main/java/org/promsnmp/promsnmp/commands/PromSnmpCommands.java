@@ -1,6 +1,6 @@
 package org.promsnmp.promsnmp.commands;
 
-import org.promsnmp.promsnmp.services.sample.PromSnmpServiceDemo;
+import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -10,9 +10,9 @@ import java.util.Optional;
 @ShellComponent
 public class PromSnmpCommands {
 
-    private final PromSnmpServiceDemo promSnmpService;
+    private final PromSnmpService promSnmpService;
 
-    public PromSnmpCommands(PromSnmpServiceDemo promSnmpService) {
+    public PromSnmpCommands(PromSnmpService promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 
@@ -21,8 +21,8 @@ public class PromSnmpCommands {
         return "Hello World";
     }
 
-    @ShellMethod(key = "sample", value = "Displays sample metric data, optionally filtered by instance name.")
-    public Optional<String> sampleData(
+    @ShellMethod(key = "metrics", value = "Displays sample metric data, optionally filtered by instance name.")
+    public Optional<String> demoData(
             @ShellOption(defaultValue = "false", help = "Treat the instance filter as a regular expression.") boolean regex,
             @ShellOption(defaultValue = ShellOption.NULL, help = "Optional instance name to filter (e.g., router-1.example.com)") String instance
     ) {
