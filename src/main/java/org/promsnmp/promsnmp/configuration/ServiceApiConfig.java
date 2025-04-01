@@ -1,8 +1,6 @@
 package org.promsnmp.promsnmp.configuration;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
-import org.promsnmp.promsnmp.repositories.demo.DemoRepository;
-import org.promsnmp.promsnmp.repositories.resource.ClassPathResourcePromSnmpRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
