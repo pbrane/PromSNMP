@@ -32,8 +32,17 @@ java -jar target/promsnmp-*.jar
 Start the application using Docker
 
 ```shell
-docker run --init --rm -p "8082:8080/tcp" local/promsnmp:$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+docker run -it --init --rm -p "8082:8080/tcp" local/promsnmp:$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 ```
+## 🔌 API Endpoints
+
+The application exposes the following endpoints:
+
+| Endpoint                     | Method | Description                                                          |
+|------------------------------|--------|----------------------------------------------------------------------|
+| `/promSnmp/hello`            | GET    | Returns a simple "Hello World" response                              |
+| `/promSnmp/sample`           | GET    | Returns sample Prometheus metrics from static file                   |
+| `/promSnmp/router`           | GET    | Returns router metrics from static file                              |
 
 ## 🎢 Deployment playground
 
