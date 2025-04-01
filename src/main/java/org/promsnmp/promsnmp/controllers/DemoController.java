@@ -1,6 +1,6 @@
 package org.promsnmp.promsnmp.controllers;
 
-import org.promsnmp.promsnmp.service.PromSnmpService;
+import org.promsnmp.promsnmp.services.sample.PromSnmpServiceSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,16 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/promSnmp")
 public class DemoController {
 
-    private final PromSnmpService promSnmpService;
+    private final PromSnmpServiceSample promSnmpService;
 
     @Autowired
-    public DemoController(PromSnmpService promSnmpService) {
+    public DemoController(PromSnmpServiceSample promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 
@@ -36,7 +34,7 @@ public class DemoController {
             @RequestParam(required = false, defaultValue = "false")
             Boolean regex ) {
 
-        return promSnmpService.getFilteredOutput(regex, instance)
+        return promSnmpService.getFilteredOutput(instance, regex)
                 .map(metrics -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                         .body(metrics))
@@ -46,7 +44,7 @@ public class DemoController {
 
     @GetMapping("/services")
     public ResponseEntity<String> sampleServices() {
-        return promSnmpService.readServicesFile()
+        return promSnmpService.readServices()
                 .map(services -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .body(services))
