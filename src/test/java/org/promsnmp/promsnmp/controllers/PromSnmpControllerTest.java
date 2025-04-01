@@ -1,8 +1,12 @@
 package org.promsnmp.promsnmp.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,10 +22,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PromSnmpController.class)
-class DemoControllerTest {
+class PromSnmpControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    @Qualifier("configuredService")
+    private PromSnmpService promSnmpService;
+
+    @MockBean
+    private CacheManager cacheManager;
+
 
     @Test
     void testHelloEndpoint() throws Exception {
