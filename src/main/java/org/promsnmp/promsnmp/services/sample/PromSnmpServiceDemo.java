@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class PromSnmpServiceSample implements PromSnmpService {
+public class PromSnmpServiceDemo implements PromSnmpService {
 
     private final PromSnmpRepository demoRepository;
 
-    public PromSnmpServiceSample(PromSnmpRepository repository) {
+    public PromSnmpServiceDemo(PromSnmpRepository repository) {
         this.demoRepository = repository;
     }
 

@@ -1,7 +1,6 @@
 package org.promsnmp.promsnmp.controllers;
 
-import org.promsnmp.promsnmp.services.sample.PromSnmpServiceSample;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/promSnmp")
 public class DemoController {
 
-    private final PromSnmpServiceSample promSnmpService;
+    private final PromSnmpService promSnmpService;
 
-    @Autowired
-    public DemoController(PromSnmpServiceSample promSnmpService) {
+    public DemoController(PromSnmpService promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 

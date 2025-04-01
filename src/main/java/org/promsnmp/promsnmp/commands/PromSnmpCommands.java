@@ -1,6 +1,6 @@
 package org.promsnmp.promsnmp.commands;
 
-import org.promsnmp.promsnmp.services.sample.PromSnmpServiceSample;
+import org.promsnmp.promsnmp.services.sample.PromSnmpServiceDemo;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -10,9 +10,9 @@ import java.util.Optional;
 @ShellComponent
 public class PromSnmpCommands {
 
-    private final PromSnmpServiceSample promSnmpService;
+    private final PromSnmpServiceDemo promSnmpService;
 
-    public PromSnmpCommands(PromSnmpServiceSample promSnmpService) {
+    public PromSnmpCommands(PromSnmpServiceDemo promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 
