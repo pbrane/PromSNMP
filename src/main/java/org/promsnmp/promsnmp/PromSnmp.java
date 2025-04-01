@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PromsnmpApplication {
+public class PromSnmp {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PromsnmpApplication.class, args);
+		SpringApplication.run(PromSnmp.class, args);
 	}
 
 }
