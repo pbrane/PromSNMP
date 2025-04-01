@@ -1,7 +1,7 @@
 package org.promsnmp.promsnmp.configuration;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
-import org.promsnmp.promsnmp.repositories.direct.DirectFormattingRepository;
+import org.promsnmp.promsnmp.repositories.resource.DirectFormattingRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

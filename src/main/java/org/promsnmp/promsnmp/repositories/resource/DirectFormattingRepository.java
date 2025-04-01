@@ -1,4 +1,4 @@
-package org.promsnmp.promsnmp.repositories.direct;
+package org.promsnmp.promsnmp.repositories.resource;
 
 import org.promsnmp.promsnmp.utils.PromFormatUtil;
 import org.promsnmp.promsnmp.model.RouterConfig;
