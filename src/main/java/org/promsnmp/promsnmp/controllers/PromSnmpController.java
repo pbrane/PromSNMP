@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/promSnmp")
-public class DemoController {
+public class PromSnmpController {
 
     private final PromSnmpService promSnmpService;
 
-    public DemoController(@Qualifier("configuredService") PromSnmpService promSnmpService) {
+    public PromSnmpController(@Qualifier("configuredService") PromSnmpService promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 
