@@ -34,7 +34,7 @@ public class DemoController {
             @RequestParam(required = false, defaultValue = "false")
             Boolean regex ) {
 
-        return promSnmpService.getFilteredOutput(instance, regex)
+        return promSnmpService.readMetrics(instance, regex)
                 .map(metrics -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                         .body(metrics))

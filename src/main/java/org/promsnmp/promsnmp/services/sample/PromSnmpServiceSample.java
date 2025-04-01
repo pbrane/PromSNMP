@@ -2,7 +2,6 @@ package org.promsnmp.promsnmp.services.sample;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +40,7 @@ public class PromSnmpServiceSample implements PromSnmpService {
         }
     }
 
-    @Override
-    public Optional<String> readMetrics() {
+    private Optional<String> deriveMetrics() {
         Resource demoResource = demoRepository.getMetricsResource();
 
         if (demoResource == null) {
@@ -59,8 +57,8 @@ public class PromSnmpServiceSample implements PromSnmpService {
     }
 
     @Override
-    public Optional<String> getFilteredOutput(String instance, boolean regex) {
-        return Optional.of(readMetrics()
+    public Optional<String> readMetrics(String instance, boolean regex) {
+        return Optional.of(deriveMetrics()
                 .map(this::formatMetrics)
                 .map(metrics -> filterByInstance(metrics, instance, regex))
                 .orElse("Error reading metrics"));

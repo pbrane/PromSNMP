@@ -5,7 +5,5 @@ import java.util.Optional;
 public interface PromSnmpService {
     Optional<String> readServices();
 
-    Optional<String> readMetrics();
-
-    Optional<String> getFilteredOutput(String instance, boolean regex);
+    Optional<String> readMetrics(String instance, boolean regex);
 }
