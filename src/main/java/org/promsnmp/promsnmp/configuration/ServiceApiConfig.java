@@ -1,6 +1,7 @@
 package org.promsnmp.promsnmp.configuration;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
+import org.promsnmp.promsnmp.repositories.direct.DirectFormattingRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,10 +27,13 @@ public class ServiceApiConfig {
     }
 
     @Bean("configuredRepo")
-    public PromSnmpRepository promSnmpRepository(@Qualifier("DemoRepo") PromSnmpRepository demoRepository, @Qualifier("ClassPathRepo") PromSnmpRepository cpRepo) {
+    public PromSnmpRepository promSnmpRepository(@Qualifier("DemoRepo") PromSnmpRepository demoRepository,
+                                                 @Qualifier("ClassPathRepo") PromSnmpRepository cpRepo,
+                                                 @Qualifier("DirectRepo")DirectFormattingRepository directRepo) {
         return switch (apiRepoMode.toLowerCase()) {
             case "demo" -> demoRepository;
             case "classpath" -> cpRepo;
+            case "direct" -> directRepo;
             default -> throw new IllegalStateException("Unknown REPOSITORY_API mode");
         };
     }
