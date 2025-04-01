@@ -2,7 +2,9 @@ package org.promsnmp.promsnmp.services.resource;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +22,13 @@ import java.util.stream.Stream;
 public class ResourceBasedPromSnmpService implements PromSnmpService {
 
     private final PromSnmpRepository repository;
+    private final CachedMetricsService cachedMetrics;
 
-    public ResourceBasedPromSnmpService(@Qualifier("configuredRepo") PromSnmpRepository repository) {
+    public ResourceBasedPromSnmpService(
+            @Qualifier("configuredRepo") PromSnmpRepository repository,
+            CachedMetricsService cachedMetricsService) {
         this.repository = repository;
+        this.cachedMetrics = cachedMetricsService;
     }
 
     @Override
@@ -39,19 +45,25 @@ public class ResourceBasedPromSnmpService implements PromSnmpService {
 
     @Override
     public Optional<String> getMetrics(String instance, boolean regex) {
+        return cachedMetrics.getRawMetrics(instance)
+                .map(this::formatMetrics)
+                .map(metrics -> filterByInstance(metrics, instance, regex));
+    }
+
+    // This one is cached — just returns the raw metrics text
+    @Cacheable(value = "metrics", key = "#instance")
+    public Optional<String> getRawMetrics(String instance) {
         Resource instanceResource = repository.readMetrics(instance);
         if (!instanceResource.exists()) {
-            return Optional.of("Instance file not found: " + instance);
+            return Optional.empty();
         }
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(instanceResource.getInputStream(), StandardCharsets.UTF_8))) {
 
-            String metrics = reader.lines().collect(Collectors.joining("\n"));
-            String formatted = formatMetrics(metrics);
-            return Optional.of(filterByInstance(formatted, instance, regex));
+            return Optional.of(reader.lines().collect(Collectors.joining("\n")));
         } catch (IOException e) {
-            return Optional.of("Error reading instance metrics for " + instance);
+            return Optional.empty();
         }
     }
 

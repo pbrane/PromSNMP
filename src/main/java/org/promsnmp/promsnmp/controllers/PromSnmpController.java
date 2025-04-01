@@ -2,6 +2,7 @@ package org.promsnmp.promsnmp.controllers;
 
 import org.promsnmp.promsnmp.services.PromSnmpService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,14 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/promSnmp")
 public class PromSnmpController {
 
     private final PromSnmpService promSnmpService;
+    private final CacheManager cacheManager;
 
-    public PromSnmpController(@Qualifier("configuredService") PromSnmpService promSnmpService) {
+    public PromSnmpController(@Qualifier("configuredService") PromSnmpService promSnmpService, CacheManager cacheManager) {
         this.promSnmpService = promSnmpService;
+        this.cacheManager = cacheManager;
     }
 
     @GetMapping("/hello")
@@ -49,5 +54,11 @@ public class PromSnmpController {
                         .body(services))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("{\"error\": \"File not found\"}"));
+    }
+
+    @GetMapping("/evictCache")
+    public String evictAll() {
+        Objects.requireNonNull(cacheManager.getCache("metrics")).clear();
+        return "Cache cleared.";
     }
 }
