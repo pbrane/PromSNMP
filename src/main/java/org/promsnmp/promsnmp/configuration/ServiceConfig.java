@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceConfig {
 
-    @Value("${SERVICE_API_IMPL:demo}")
+    @Value("${SERVICE_API:demo}")
     private String apiSvcMode;
 
     @Bean
