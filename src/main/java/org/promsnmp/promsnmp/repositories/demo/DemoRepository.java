@@ -5,16 +5,16 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 
-@Repository
+@Repository("DemoRepo")
 public class DemoRepository implements PromSnmpRepository {
 
     @Override
-    public Resource getMetricsResource() {
+    public Resource readMetrics(String instance) {
         return new ClassPathResource("static/prometheus-snmp-export.dat");
     }
 
     @Override
-    public Resource getServicesResource() {
+    public Resource readServices() {
         return new ClassPathResource("static/prometheus-snmp-services.json");
     }
 }

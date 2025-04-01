@@ -1,0 +1,54 @@
+
+# HELP ifHCInOctets The total number of octets received on the interface (High Capacity).
+# TYPE ifHCInOctets counter
+ifHCInOctets{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 12345678901234
+ifHCInOctets{instance="router-1.example.com", ifIndex="2", ifDescr="GigabitEthernet0/1", ifName="Gig0/1", ifAlias="Uplink to Server"} 23456789012345
+
+# HELP ifHCOutOctets The total number of octets transmitted out of the interface (High Capacity).
+# TYPE ifHCOutOctets counter
+ifHCOutOctets{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 22334455667788
+ifHCOutOctets{instance="router-1.example.com", ifIndex="2", ifDescr="GigabitEthernet0/1", ifName="Gig0/1", ifAlias="Uplink to Server"} 33445566778899
+
+# HELP ifHCInUcastPkts Number of unicast packets received.
+# TYPE ifHCInUcastPkts counter
+ifHCInUcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 87654321
+
+# HELP ifHCOutUcastPkts Number of unicast packets transmitted.
+# TYPE ifHCOutUcastPkts counter
+ifHCOutUcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 76543210
+
+# HELP ifHCInMulticastPkts Number of multicast packets received.
+# TYPE ifHCInMulticastPkts counter
+ifHCInMulticastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 3456789
+
+# HELP ifHCOutMulticastPkts Number of multicast packets transmitted.
+# TYPE ifHCOutMulticastPkts counter
+ifHCOutMulticastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 2345678
+
+# HELP ifHCInBroadcastPkts Number of broadcast packets received.
+# TYPE ifHCInBroadcastPkts counter
+ifHCInBroadcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 123456
+
+# HELP ifHCOutBroadcastPkts Number of broadcast packets transmitted.
+# TYPE ifHCOutBroadcastPkts counter
+ifHCOutBroadcastPkts{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 112233
+
+# HELP ifInDiscards Number of inbound packets discarded.
+# TYPE ifInDiscards counter
+ifInDiscards{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 10
+
+# HELP ifInErrors Number of inbound packets with errors.
+# TYPE ifInErrors counter
+ifInErrors{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 5
+
+# HELP ifOutDiscards Number of outbound packets discarded.
+# TYPE ifOutDiscards counter
+ifOutDiscards{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 8
+
+# HELP ifOutErrors Number of outbound packets with errors.
+# TYPE ifOutErrors counter
+ifOutErrors{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 2
+
+# HELP ifHighSpeed Interface speed in Mbps.
+# TYPE ifHighSpeed gauge
+ifHighSpeed{instance="router-1.example.com", ifIndex="1", ifDescr="GigabitEthernet0/0", ifName="Gig0/0", ifAlias="WAN Link"} 1000

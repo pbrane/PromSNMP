@@ -1,13 +1,15 @@
-package org.promsnmp.promsnmp.services.demo;
+package org.promsnmp.promsnmp.services.resource;
 
 import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
 import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -16,52 +18,53 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service
-public class PromSnmpServiceDemo implements PromSnmpService {
+@Service("ResSvc")
+public class ResourceBasedPromSnmpService implements PromSnmpService {
 
-    private final PromSnmpRepository demoRepository;
+    private final PromSnmpRepository repository;
+    private final CachedMetricsService cachedMetrics;
 
-    public PromSnmpServiceDemo(PromSnmpRepository repository) {
-        this.demoRepository = repository;
+    public ResourceBasedPromSnmpService(
+            @Qualifier("configuredRepo") PromSnmpRepository repository,
+            CachedMetricsService cachedMetricsService) {
+        this.repository = repository;
+        this.cachedMetrics = cachedMetricsService;
     }
 
     @Override
-    public Optional<String> readServices() {
-        Resource demoResource = demoRepository.getServicesResource();
+    public Optional<String> getServices() {
+        try {
+            Resource resource = repository.readServices();
+            if (!resource.exists()) return Optional.empty();
 
-        if (demoResource == null || !demoResource.exists()) {
-            return Optional.empty();
-        }
-
-        try (InputStream is = demoResource.getInputStream()) {
-            return Optional.of(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+            return Optional.of(new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             return Optional.empty();
         }
     }
 
-    private Optional<String> deriveMetrics() {
-        Resource demoResource = demoRepository.getMetricsResource();
+    @Override
+    public Optional<String> getMetrics(String instance, boolean regex) {
+        return cachedMetrics.getRawMetrics(instance)
+                .map(this::formatMetrics)
+                .map(metrics -> filterByInstance(metrics, instance, regex));
+    }
 
-        if (demoResource == null) {
+    // This one is cached — just returns the raw metrics text
+    @Cacheable(value = "metrics", key = "#instance")
+    public Optional<String> getRawMetrics(String instance) {
+        Resource instanceResource = repository.readMetrics(instance);
+        if (!instanceResource.exists()) {
             return Optional.empty();
         }
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(demoResource.getInputStream(), StandardCharsets.UTF_8))) {
+                new InputStreamReader(instanceResource.getInputStream(), StandardCharsets.UTF_8))) {
 
             return Optional.of(reader.lines().collect(Collectors.joining("\n")));
         } catch (IOException e) {
             return Optional.empty();
         }
-    }
-
-    @Override
-    public Optional<String> readMetrics(String instance, boolean regex) {
-        return Optional.of(deriveMetrics()
-                .map(this::formatMetrics)
-                .map(metrics -> filterByInstance(metrics, instance, regex))
-                .orElse("Error reading metrics"));
     }
 
     private String formatMetrics(String rawMetrics) {
@@ -83,7 +86,7 @@ public class PromSnmpServiceDemo implements PromSnmpService {
             try {
                 pattern = Pattern.compile(instance);
             } catch (PatternSyntaxException e) {
-                return "Invalid regular expression: " + instance;
+                return "Invalid regex pattern: " + instance;
             }
         }
 
@@ -91,11 +94,11 @@ public class PromSnmpServiceDemo implements PromSnmpService {
             if (line.isBlank() || line.startsWith("# HELP") || line.startsWith("# TYPE")) {
                 filtered.append(line).append("\n");
             } else {
-                boolean instanceMatch = regex
+                boolean match = regex
                         ? pattern.matcher(line).find()
                         : line.contains("instance=\"" + instance + "\"");
 
-                if (instanceMatch) {
+                if (match) {
                     filtered.append(line).append("\n");
                 }
             }
