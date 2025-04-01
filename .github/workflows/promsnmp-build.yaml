@@ -37,13 +37,13 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container image
         uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: false
           build-args: |
             DATE=${{ env.BUILD_DATE }}
             GIT_SHORT_HASH=${{ env.SHORT_GIT_SHA }}
