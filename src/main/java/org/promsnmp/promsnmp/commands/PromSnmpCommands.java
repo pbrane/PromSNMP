@@ -1,6 +1,7 @@
 package org.promsnmp.promsnmp.commands;
 
 import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -12,7 +13,7 @@ public class PromSnmpCommands {
 
     private final PromSnmpService promSnmpService;
 
-    public PromSnmpCommands(PromSnmpService promSnmpService) {
+    public PromSnmpCommands(@Qualifier("configuredService") PromSnmpService promSnmpService) {
         this.promSnmpService = promSnmpService;
     }
 

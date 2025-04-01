@@ -31,8 +31,8 @@ public class ServiceApiConfig {
     @Bean("configuredRepo")
     public PromSnmpRepository promSnmpRepository(ClassPathResourcePromSnmpRepository classPathResourcePromSnmpRepository, DemoRepository demoRepository) {
         return switch (apiRepoMode.toLowerCase()) {
-            case "classpath" -> classPathResourcePromSnmpRepository;
             case "demo" -> demoRepository;
+            case "classpath" -> classPathResourcePromSnmpRepository;
             default -> throw new IllegalStateException("Unknown REPOSITORY_API mode");
         };
     }
