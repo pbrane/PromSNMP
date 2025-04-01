@@ -17,12 +17,12 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service
-public class PromSnmpServiceDemo implements PromSnmpService {
+@Service("DemoSvc")
+public class DemoPromSnmpService implements PromSnmpService {
 
     private final PromSnmpRepository demoRepository;
 
-    public PromSnmpServiceDemo(@Qualifier("configuredRepo") PromSnmpRepository repository) {
+    public DemoPromSnmpService(@Qualifier("configuredRepo") PromSnmpRepository repository) {
         this.demoRepository = repository;
     }
 

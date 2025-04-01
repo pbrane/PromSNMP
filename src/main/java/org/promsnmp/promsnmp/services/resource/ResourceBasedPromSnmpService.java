@@ -16,7 +16,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service
+@Service("ResSvc")
 public class ResourceBasedPromSnmpService implements PromSnmpService {
 
     private final PromSnmpRepository repository;
