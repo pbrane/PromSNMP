@@ -57,3 +57,30 @@ Endpoints:
 * Grafana: http://localhost:3000, login admin, password admin
 * Prometheus: http://localhost:9090
 * PromSNMP: http://localhost:8080
+
+## Create and publish a new release
+
+To make a release the following steps are required:
+
+1. Set the Maven project version without -SNAPSHOT
+2. Make a version tag with git
+3. Set a new SNAPSHOT version in the main branch
+4. Publish a release 
+
+To help you with these steps you can run a make goal `make release`.
+It requires a version number you want to release.
+As an example the current main branch has 0.0.2-SNAPSHOT and you want to release 0.0.2 you need to run
+
+```shell
+make release RELEASE_VERSION=0.0.2
+```
+
+The 0.0.2 version is set with the git tag v0.0.2.
+It will automatically set the main branch to 0.0.3-SNAPSHOT for the next iteration.
+All changes stay in your local repository.
+When you want to publish the new released version you need to run
+
+```shell
+git push                # Push the main branch with the new -SNAPSHOT version
+git push origin v0.0.2  # Push the release tag which triggers the build which publishes artifacts.
+```
