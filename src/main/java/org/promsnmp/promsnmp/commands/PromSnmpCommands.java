@@ -2,7 +2,11 @@ package org.promsnmp.promsnmp.commands;
 
 import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscoveryService;
 import org.promsnmp.promsnmp.model.CommunityAgent;
-import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.model.UserAgent;
+import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
+import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.shell.standard.ShellComponent;
@@ -10,6 +14,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -17,14 +22,25 @@ import java.util.concurrent.CompletableFuture;
 @ShellComponent
 public class PromSnmpCommands {
 
-    private final PromSnmpService promSnmpService;
+    private final PrometheusMetricsService prometheusMetricsService;
+    private final PrometheusDiscoveryService prometheusDiscoveryService;
     private final CacheManager cacheManager;
     private final SnmpAgentDiscoveryService snmpDiscoveryService;
 
-    public PromSnmpCommands(@Qualifier("configuredService") PromSnmpService promSnmpService, CacheManager cacheManager, SnmpAgentDiscoveryService snmpDiscoveryService) {
-        this.promSnmpService = promSnmpService;
+    private final CommunityAgentRepository communityAgentRepository;
+    private final UserAgentRepository userAgentRepository;
+
+    public PromSnmpCommands(
+            @Qualifier("prometheusMetricsService") PrometheusMetricsService prometheusMetricsService,
+            @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService prometheusDiscoveryService,
+            CacheManager cacheManager, SnmpAgentDiscoveryService snmpDiscoveryService, CommunityAgentRepository communityAgentRepository, UserAgentRepository userAgentRepository) {
+
+        this.prometheusMetricsService = prometheusMetricsService;
+        this.prometheusDiscoveryService = prometheusDiscoveryService;
         this.cacheManager = cacheManager;
         this.snmpDiscoveryService = snmpDiscoveryService;
+        this.communityAgentRepository = communityAgentRepository;
+        this.userAgentRepository = userAgentRepository;
     }
 
     @ShellMethod(key = "hello", value = "Returns a greeting message.")
@@ -40,12 +56,12 @@ public class PromSnmpCommands {
         if (instance == null || instance.isBlank()) {
             return Optional.of("Please provide a valid instance name.");
         }
-        return promSnmpService.getMetrics(instance, regex);
+        return prometheusMetricsService.getMetrics(instance, regex);
     }
 
     @ShellMethod(key = "services", value = "Displays services from prometheus-snmp-services.json")
     public String sampleServices() {
-        return promSnmpService.getServices()
+        return prometheusDiscoveryService.getServices()
                 .orElse("{\"error\": \"File not found\"}");
     }
 
@@ -73,5 +89,47 @@ public class PromSnmpCommands {
             return "Discovery failed: " + e.getMessage();
         }
     }
+
+    @ShellMethod(key = "showInventory", value = "Display Prometheus service discovery targets in JSON format.")
+    public String serviceDiscovery() {
+        return prometheusDiscoveryService.getServices()
+                .orElse("{\"error\": \"Unable to generate service discovery output.\"}");
+    }
+
+    @ShellMethod(key = "list-agents", value = "List all discovered SNMP agents.")
+    public String listAllAgents() {
+        StringBuilder output = new StringBuilder();
+
+        List<CommunityAgent> communityAgents = communityAgentRepository.findAll();
+        if (communityAgents.isEmpty()) {
+            output.append("No CommunityAgents found.\n");
+        } else {
+            output.append("CommunityAgents:\n");
+            for (CommunityAgent agent : communityAgents) {
+                output.append(" - ")
+                        .append(agent.getEndpoint())
+                        .append(" → Device: ")
+                        .append(agent.getDevice() != null ? agent.getDevice().getSysName() : "unlinked")
+                        .append("\n");
+            }
+        }
+
+        List<UserAgent> userAgents = userAgentRepository.findAll();
+        if (userAgents.isEmpty()) {
+            output.append("No UserAgents found.\n");
+        } else {
+            output.append("UserAgents:\n");
+            for (UserAgent agent : userAgents) {
+                output.append(" - ")
+                        .append(agent.getEndpoint())
+                        .append(" → Device: ")
+                        .append(agent.getDevice() != null ? agent.getDevice().getSysName() : "unlinked")
+                        .append("\n");
+            }
+        }
+
+        return output.toString();
+    }
+
 
 }

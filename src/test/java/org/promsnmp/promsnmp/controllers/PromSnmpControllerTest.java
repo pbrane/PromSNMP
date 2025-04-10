@@ -2,7 +2,8 @@ package org.promsnmp.promsnmp.controllers;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,8 +31,12 @@ class PromSnmpControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    @Qualifier("configuredService")
-    private PromSnmpService promSnmpService;
+    @Qualifier("prometheusDiscoveryService")
+    private PrometheusDiscoveryService discoveryService;
+
+    @MockBean
+    @Qualifier("prometheusMetricsService")
+    private PrometheusMetricsService metricsService;
 
     @MockBean
     private CacheManager cacheManager;

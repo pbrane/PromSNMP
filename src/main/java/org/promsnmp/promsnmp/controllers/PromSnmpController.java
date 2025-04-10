@@ -1,6 +1,7 @@
 package org.promsnmp.promsnmp.controllers;
 
-import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
@@ -18,13 +19,19 @@ import java.util.Objects;
 @RequestMapping("/promSnmp")
 public class PromSnmpController {
 
-    private final PromSnmpService promSnmpService;
+    private final PrometheusMetricsService prometheusMetricsService;
+    private final PrometheusDiscoveryService prometheusDiscoveryService;
     private final CacheManager cacheManager;
 
-    public PromSnmpController(@Qualifier("configuredService") PromSnmpService promSnmpService, CacheManager cacheManager) {
-        this.promSnmpService = promSnmpService;
+    public PromSnmpController(
+            @Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
+            @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService discoveryService,
+            CacheManager cacheManager) {
+        this.prometheusMetricsService = metricsService;
+        this.prometheusDiscoveryService = discoveryService;
         this.cacheManager = cacheManager;
     }
+
 
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
@@ -38,7 +45,7 @@ public class PromSnmpController {
             @RequestParam(required = false, defaultValue = "false")
             Boolean regex ) {
 
-        return promSnmpService.getMetrics(instance, regex)
+        return prometheusMetricsService.getMetrics(instance, regex)
                 .map(metrics -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                         .body(metrics))
@@ -48,7 +55,7 @@ public class PromSnmpController {
 
     @GetMapping("/services")
     public ResponseEntity<String> sampleServices() {
-        return promSnmpService.getServices()
+        return prometheusDiscoveryService.getServices()
                 .map(services -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .body(services))

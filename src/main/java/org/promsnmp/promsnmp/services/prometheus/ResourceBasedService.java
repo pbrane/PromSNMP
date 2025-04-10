@@ -1,17 +1,14 @@
-package org.promsnmp.promsnmp.services.resource;
+package org.promsnmp.promsnmp.services.prometheus;
 
-import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
-import org.promsnmp.promsnmp.services.PromSnmpService;
+import org.promsnmp.promsnmp.repositories.PrometheusDiscoveryRepository;
+import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -19,28 +16,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service("ResSvc")
-public class ResourceBasedPromSnmpService implements PromSnmpService {
+public class ResourceBasedService implements PrometheusMetricsService, PrometheusDiscoveryService {
 
-    private final PromSnmpRepository repository;
+    private final PrometheusMetricsRepository metricsRepository;
+    private final PrometheusDiscoveryRepository discoveryRepository;
     private final CachedMetricsService cachedMetrics;
 
-    public ResourceBasedPromSnmpService(
-            @Qualifier("configuredRepo") PromSnmpRepository repository,
+    public ResourceBasedService(
+            @Qualifier("ClassPathRepo") PrometheusMetricsRepository metricsRepository,
+            @Qualifier("ClassPathRepo") PrometheusDiscoveryRepository prometheusDiscoveryRepository,
             CachedMetricsService cachedMetricsService) {
-        this.repository = repository;
+        this.metricsRepository = metricsRepository;
+        this.discoveryRepository = prometheusDiscoveryRepository;
         this.cachedMetrics = cachedMetricsService;
     }
 
     @Override
     public Optional<String> getServices() {
-        try {
-            Resource resource = repository.readServices();
-            if (!resource.exists()) return Optional.empty();
-
-            return Optional.of(new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            return Optional.empty();
-        }
+        return discoveryRepository.readServices();
     }
 
     @Override
@@ -53,18 +46,7 @@ public class ResourceBasedPromSnmpService implements PromSnmpService {
     // This one is cached — just returns the raw metrics text
     @Cacheable(value = "metrics", key = "#instance")
     public Optional<String> getRawMetrics(String instance) {
-        Resource instanceResource = repository.readMetrics(instance);
-        if (!instanceResource.exists()) {
-            return Optional.empty();
-        }
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(instanceResource.getInputStream(), StandardCharsets.UTF_8))) {
-
-            return Optional.of(reader.lines().collect(Collectors.joining("\n")));
-        } catch (IOException e) {
-            return Optional.empty();
-        }
+        return metricsRepository.readMetrics(instance);
     }
 
     private String formatMetrics(String rawMetrics) {

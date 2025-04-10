@@ -1,13 +1,11 @@
-package org.promsnmp.promsnmp.repositories.resource;
+package org.promsnmp.promsnmp.repositories.prometheus;
 
-import org.promsnmp.promsnmp.utils.PromFormatUtil;
 import org.promsnmp.promsnmp.model.RouterConfig;
-import org.promsnmp.promsnmp.repositories.PromSnmpRepository;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
+import org.promsnmp.promsnmp.repositories.PrometheusDiscoveryRepository;
+import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
+import org.promsnmp.promsnmp.utils.PromFormatUtil;
 import org.springframework.stereotype.Repository;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * instead of relying on a specific Prometheus client library.
  */
 @Repository("DirectRepo")
-public class DirectFormattingRepository implements PromSnmpRepository {
+public class DirectFormattingRepository implements PrometheusMetricsRepository, PrometheusDiscoveryRepository {
 
     // Define router configurations
     private final List<RouterConfig> routers = Arrays.asList(
@@ -36,7 +34,7 @@ public class DirectFormattingRepository implements PromSnmpRepository {
 
 
     @Override
-    public Resource readMetrics(String instance) {
+    public Optional<String> readMetrics(String instance) {
 
         String metrics = null;
         if (instance == null) {
@@ -44,12 +42,13 @@ public class DirectFormattingRepository implements PromSnmpRepository {
         } else {
             metrics = getRouterMetrics(instance, "router");
         }
-        return new ByteArrayResource(metrics.getBytes(StandardCharsets.UTF_8));
+
+        return metrics == null ? Optional.empty() : Optional.of(metrics);
     }
 
     @Override
-    public Resource readServices() {
-        return null;
+    public Optional<String> readServices() {
+        return Optional.empty();
     }
 
     public String getDirectFormattedMetrics() {
