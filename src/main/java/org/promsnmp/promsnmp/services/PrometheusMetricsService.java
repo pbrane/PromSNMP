@@ -2,8 +2,6 @@ package org.promsnmp.promsnmp.services;
 
 import java.util.Optional;
 
-public interface PromSnmpService {
-    Optional<String> getServices();
-
+public interface PrometheusMetricsService {
     Optional<String> getMetrics(String instance, boolean regex);
 }

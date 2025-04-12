@@ -1,7 +1,6 @@
 package org.promsnmp.promsnmp.monitoring;
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.scheduling.annotation.Scheduled;
