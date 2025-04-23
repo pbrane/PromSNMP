@@ -2,8 +2,10 @@ package org.promsnmp.promsnmp.configuration;
 
 import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
 import org.promsnmp.promsnmp.repositories.prometheus.DirectFormattingRepository;
+import org.promsnmp.promsnmp.repositories.prometheus.SnmpMetricsRepository;
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.services.prometheus.SnmpBasedMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,11 +25,13 @@ public class ServiceApiConfig {
 
     @Bean("prometheusMetricsService")
     public PrometheusMetricsService metricsService(@Qualifier("ResSvc") PrometheusMetricsService resourceService,
-                                                   @Qualifier("directService") PrometheusMetricsService directRepo) {
+                                                   @Qualifier("directService") PrometheusMetricsService directService,
+                                                   @Qualifier("SnmpSvc")SnmpBasedMetricsService snmpService) {
 
         return switch (metricsSvcMode.toLowerCase()) {
             case "demo" -> resourceService;
-            case "direct" -> directRepo;
+            case "direct" -> directService;
+            case "snmp" -> snmpService;
             default -> throw new IllegalStateException("Unknown PROM_METRICS_API mode: " + metricsSvcMode);
         };
     }
@@ -43,16 +47,16 @@ public class ServiceApiConfig {
         };
     }
 
-    @Bean("configuredRepo")
+    @Bean("configuredMetricsRepo")
     public PrometheusMetricsRepository metricsRepository(@Qualifier("ClassPathRepo") PrometheusMetricsRepository cpRepo,
-                                                         @Qualifier("jpaRepo") PrometheusMetricsRepository jpaRepo,
-                                                         @Qualifier("DirectRepo")DirectFormattingRepository directRepo) {
+                                                         @Qualifier("DirectRepo")DirectFormattingRepository directRepo,
+                                                         @Qualifier("SnmpMetricsRepo" ) SnmpMetricsRepository snmpRepo) {
 
         return switch (repoMode.toLowerCase()) {
             case "demo" -> cpRepo;
             case "direct" -> directRepo;
-            case "jpa" -> jpaRepo;
-            default -> throw new IllegalStateException("Unknown REPO_API mode");
+            case "snmp" -> snmpRepo;
+            default -> throw new IllegalStateException("Unknown REPO_API mode" + repoMode);
         };
     }
 }

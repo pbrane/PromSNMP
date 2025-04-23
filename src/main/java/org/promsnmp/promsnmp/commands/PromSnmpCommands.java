@@ -43,6 +43,16 @@ public class PromSnmpCommands {
         this.userAgentRepository = userAgentRepository;
     }
 
+    @ShellMethod("Collect SNMP metrics for a given instance. Use regex=true for pattern matching.")
+    public String collectSnmpMetrics(
+            @ShellOption(help = "Instance name (sysName)") String instance,
+            @ShellOption(defaultValue = "false", help = "Enable regex matching") boolean regex
+    ) {
+        return prometheusMetricsService.getMetrics(instance, regex)
+                .orElse("No metrics available or SNMP walk failed.");
+    }
+
+
     @ShellMethod(key = "hello", value = "Returns a greeting message.")
     public String hello() {
         return "Hello World";

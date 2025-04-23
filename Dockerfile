@@ -11,7 +11,8 @@ RUN apt-get update && \
       iputils-tracepath \
       ncat \
       net-tools \
-      reptyr && \
+      reptyr \
+      snmp && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

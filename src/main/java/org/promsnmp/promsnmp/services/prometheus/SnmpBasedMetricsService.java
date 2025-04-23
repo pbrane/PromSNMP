@@ -1,10 +1,7 @@
 package org.promsnmp.promsnmp.services.prometheus;
 
-import org.promsnmp.promsnmp.repositories.PrometheusDiscoveryRepository;
-import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,22 +10,13 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service("ResSvc")
-public class ResourceBasedService implements PrometheusMetricsService, PrometheusDiscoveryService {
+@Service("SnmpSvc") // Matches key in ServiceApiConfig.java
+public class SnmpBasedMetricsService implements PrometheusMetricsService {
 
-    private final PrometheusDiscoveryRepository discoveryRepository;
     private final CachedMetricsService cachedMetrics;
 
-    public ResourceBasedService(
-            @Qualifier("ClassPathRepo") PrometheusDiscoveryRepository prometheusDiscoveryRepository,
-            CachedMetricsService cachedMetricsService) {
-        this.discoveryRepository = prometheusDiscoveryRepository;
-        this.cachedMetrics = cachedMetricsService;
-    }
-
-    @Override
-    public Optional<String> getServices() {
-        return discoveryRepository.readServices();
+    public SnmpBasedMetricsService(CachedMetricsService cachedMetrics) {
+        this.cachedMetrics = cachedMetrics;
     }
 
     @Override
