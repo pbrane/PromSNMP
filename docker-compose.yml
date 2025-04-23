@@ -5,7 +5,7 @@ services:
     environment:
       - PROM_DISCOVERY_API=snmp
       - PROM_METRICS_API=snmp
-      - REPO_API=snmp
+      - METRICS_REPO_API=snmp
       - CACHE_STATS_RATE_MILLIS=60000
       - CACHE_EXP_MILLIS=300000
       - CACHE_ENTRY_CNT=10000

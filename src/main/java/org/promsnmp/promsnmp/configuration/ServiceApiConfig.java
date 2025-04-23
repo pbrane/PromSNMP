@@ -20,7 +20,7 @@ public class ServiceApiConfig {
     @Value(("${PROM_METRICS_API:demo}"))
     private String metricsSvcMode;
 
-    @Value("${REPO_API:demo}")
+    @Value("${METRICS_REPO_API:demo}")
     private String repoMode;
 
     @Bean("prometheusMetricsService")
