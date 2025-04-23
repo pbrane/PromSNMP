@@ -1,15 +1,17 @@
 package org.promsnmp.promsnmp.repositories.prometheus;
 
+import org.promsnmp.promsnmp.mappers.AgentToTargetMapper;
 import org.promsnmp.promsnmp.model.Agent;
 import org.promsnmp.promsnmp.model.AgentEndpoint;
 import org.promsnmp.promsnmp.model.CommunityAgent;
+import org.promsnmp.promsnmp.model.UserAgent;
 import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
-import org.snmp4j.CommunityTarget;
-import org.snmp4j.PDU;
-import org.snmp4j.Snmp;
-import org.snmp4j.Target;
+import org.promsnmp.promsnmp.snmp.AuthProtocolMapper;
+import org.promsnmp.promsnmp.snmp.PrivProtocolMapper;
+import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.DefaultPDUFactory;
@@ -40,11 +42,14 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
     public static final String ifHCOutBroadcastPkts = "1.3.6.1.2.1.31.1.1.1.13";
     public static final String          ifHighSpeed = "1.3.6.1.2.1.31.1.1.1.15";
     public static final String              ifSpeed = "1.3.6.1.2.1.2.2.1.5";
+
     private final NetworkDeviceRepository deviceRepository;
+    private final AgentToTargetMapper agentToTargetMapper;
     private final Map<String, Snapshot> previousSnapshots = new HashMap<>();
 
-    public SnmpMetricsRepository(NetworkDeviceRepository deviceRepository) {
+    public SnmpMetricsRepository(NetworkDeviceRepository deviceRepository, AgentToTargetMapper agentToTargetMapper) {
         this.deviceRepository = deviceRepository;
+        this.agentToTargetMapper = agentToTargetMapper;
     }
 
     @Override
@@ -52,27 +57,36 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
         return deviceRepository.findBySysName(instance)
                 .flatMap(device -> {
                     Agent agent = device.resolvePrimaryAgent();
-                    if (agent == null) return Optional.empty();
+                    if (agent == null) {
+                        // Consider logging the situation for observability
+                        return Optional.empty();
+                    }
 
                     try (Snmp snmp = new Snmp(new DefaultUdpTransportMapping())) {
                         snmp.listen();
-                        AgentEndpoint endpoint = agent.getEndpoint();
-                        CommunityTarget<UdpAddress> target = new CommunityTarget<>();
-                        target.setAddress(new UdpAddress(endpoint.getAddress(), endpoint.getPort()));
-                        target.setCommunity(new OctetString(
-                                (agent instanceof CommunityAgent ca) ? ca.getReadCommunity() : "public"
-                        ));
-                        target.setRetries(agent.getRetries());
-                        target.setTimeout(agent.getTimeout());
-                        target.setVersion(agent.getVersion());
+
+                        Target<UdpAddress> target = agentToTargetMapper.mapToTarget(agent);
+
+                        // For SNMPv3, ensure USM user is registered
+                        if (target instanceof UserTarget<?> && agent instanceof UserAgent userAgent) {
+                            UsmUser user = new UsmUser(
+                                    new OctetString(userAgent.getSecurityName()),
+                                    AuthProtocolMapper.map(userAgent.getAuthProtocol()),
+                                    userAgent.getAuthPassphrase() != null ? new OctetString(userAgent.getAuthPassphrase()) : null,
+                                    PrivProtocolMapper.map(userAgent.getPrivProtocol()),
+                                    userAgent.getPrivPassphrase() != null ? new OctetString(userAgent.getPrivPassphrase()) : null
+                            );
+
+                            snmp.getUSM().addUser(user);
+                        }
 
                         return Optional.of(walkMetrics(snmp, target, instance));
                     } catch (IOException e) {
+                        // Consider logging the error
                         return Optional.empty();
                     }
                 });
     }
-
     private String walkMetrics(Snmp snmp, Target<UdpAddress> target, String instance) throws IOException {
         StringBuilder sb = new StringBuilder();
 
