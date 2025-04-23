@@ -31,14 +31,28 @@ public class NetworkDevice {
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Agent> agents = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "primary_agent_id")
+    private Agent primaryAgent;
 
     public void addAgent(Agent agent) {
         agents.add(agent);
         agent.setDevice(this);
+        if (primaryAgent == null) {
+            primaryAgent = agent;
+        }
     }
 
     public void removeAgent(Agent agent) {
         agents.remove(agent);
         agent.setDevice(null);
+        if (primaryAgent != null && primaryAgent.equals(agent)) {
+            primaryAgent = null;
+        }
+    }
+
+    public Agent resolvePrimaryAgent() {
+        return (primaryAgent != null) ? primaryAgent :
+                (!agents.isEmpty() ? agents.getFirst() : null);
     }
 }
