@@ -4,6 +4,9 @@ import org.promsnmp.promsnmp.model.*;
 import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
 import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
+import org.promsnmp.promsnmp.snmp.AuthProtocolType;
+import org.promsnmp.promsnmp.snmp.PrivProtocolType;
+import org.promsnmp.promsnmp.snmp.ProtocolValidator;
 import org.promsnmp.promsnmp.utils.Snmpv3Utils;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
@@ -118,10 +121,18 @@ public class SnmpAgentDiscoveryService {
     }
 
     @Async("snmpExecutor")
-    public CompletableFuture<Optional<UserAgent>> discoverUserAgent(InetAddress address, int port,
-                                                                    String username,
-                                                                    String authPass,
-                                                                    String privPass) {
+    public CompletableFuture<Optional<UserAgent>> discoverUserAgent(
+            InetAddress address,
+            int port,
+            String username,
+            String authProtocol,
+            String authPass,
+            String privProtocol,
+            String privPass) {
+
+        AuthProtocolType authEnum = ProtocolValidator.validateAuthProtocol(authProtocol);
+        PrivProtocolType privEnum = ProtocolValidator.validatePrivProtocol(privProtocol);
+
         try {
             OctetString user = new OctetString(username);
             UserTarget<UdpAddress> target = new UserTarget<>();
@@ -144,9 +155,9 @@ public class SnmpAgentDiscoveryService {
             agent.setVersion(SnmpConstants.version3);
             agent.setSecurityName(username);
             agent.setSecurityLevel(SecurityLevel.AUTH_PRIV);
-            agent.setAuthProtocol("SHA"); // or configurable
+            agent.setAuthProtocol(authEnum.name()); // or configurable
             agent.setAuthPassphrase(authPass);
-            agent.setPrivProtocol("AES128"); // or configurable
+            agent.setPrivProtocol(privEnum.name()); // or configurable
             agent.setPrivPassphrase(privPass);
             agent.setDiscoveredAt(Instant.now());
 

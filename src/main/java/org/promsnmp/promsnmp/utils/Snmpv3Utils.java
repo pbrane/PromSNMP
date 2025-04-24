@@ -19,7 +19,7 @@ public class Snmpv3Utils {
         }
 
         Address address = new UdpAddress(userAgent.getEndpoint().getAddress(), userAgent.getEndpoint().getPort());
-        OctetString discoveredEngineId = snmp.discoverAuthoritativeEngineID(address, 3000);
+        OctetString discoveredEngineId = OctetString.fromByteArray(snmp.discoverAuthoritativeEngineID(address, 3000));
 
         if (discoveredEngineId != null) {
             userAgent.setEngineId(discoveredEngineId.toHexString());

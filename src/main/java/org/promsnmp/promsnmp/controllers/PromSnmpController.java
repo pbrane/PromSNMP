@@ -2,6 +2,7 @@ package org.promsnmp.promsnmp.controllers;
 
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.utils.ProtocolOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -68,4 +70,16 @@ public class PromSnmpController {
         Objects.requireNonNull(cacheManager.getCache("metrics")).clear();
         return "Cache cleared.";
     }
+
+
+    @GetMapping("/authProtocols")
+    public List<String> getAuthProtocols() {
+        return ProtocolOptions.getSupportedAuthProtocols();
+    }
+
+    @GetMapping("/privProtocols")
+    public List<String> getPrivProtocols() {
+        return ProtocolOptions.getSupportedPrivProtocols();
+    }
+
 }
