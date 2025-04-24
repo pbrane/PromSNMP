@@ -1,5 +1,6 @@
 package org.promsnmp.promsnmp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class NetworkDevice {
     private Instant discoveredAt = Instant.now();
 
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Agent> agents = new ArrayList<>();
 
     @ManyToOne

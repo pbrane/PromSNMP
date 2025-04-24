@@ -98,7 +98,8 @@ public class SnmpAgentDiscoveryService {
                     VariableBinding vb = event.getResponse().get(0);
                     if (!vb.getVariable().isException()) {
                         AgentEndpoint endpoint = new AgentEndpoint(address, port);
-                        if (communityRepo.findByEndpoint(endpoint).isEmpty()) {
+                        Optional<CommunityAgent> communityAgent = communityRepo.findByEndpoint(endpoint);
+                        if (communityAgent.isEmpty()) {
                             CommunityAgent agent = new CommunityAgent();
                             agent.setEndpoint(endpoint);
                             agent.setRetries(1);
