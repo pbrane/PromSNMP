@@ -7,6 +7,7 @@ import org.promsnmp.promsnmp.model.CommunityAgent;
 import org.promsnmp.promsnmp.model.UserAgent;
 import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
+import org.promsnmp.promsnmp.services.prometheus.PrometheusHistogramService;
 import org.promsnmp.promsnmp.snmp.AuthProtocolMapper;
 import org.promsnmp.promsnmp.snmp.PrivProtocolMapper;
 import org.snmp4j.*;
@@ -45,11 +46,13 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
 
     private final NetworkDeviceRepository deviceRepository;
     private final AgentToTargetMapper agentToTargetMapper;
-    private final Map<String, Snapshot> previousSnapshots = new HashMap<>();
 
-    public SnmpMetricsRepository(NetworkDeviceRepository deviceRepository, AgentToTargetMapper agentToTargetMapper) {
+    private final PrometheusHistogramService histogramService;
+
+    public SnmpMetricsRepository(NetworkDeviceRepository deviceRepository, AgentToTargetMapper agentToTargetMapper, PrometheusHistogramService histogramService) {
         this.deviceRepository = deviceRepository;
         this.agentToTargetMapper = agentToTargetMapper;
+        this.histogramService = histogramService;
     }
 
     @Override
@@ -87,6 +90,7 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
                     }
                 });
     }
+
     private String walkMetrics(Snmp snmp, Target<UdpAddress> target, String instance) throws IOException {
         StringBuilder sb = new StringBuilder();
 
@@ -106,23 +110,29 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
         // --- Interface Metrics ---
         Map<Integer, String> ifNamesMap = walkStringColumn(snmp, target, ifName);
         Map<Integer, Long> inOctetsMap = walkLongColumn(snmp, target, ifHCInOctets);
+        Map<Integer, Long> outOctetsMap = walkLongColumn(snmp, target, ifHCOutOctets);
         Map<Integer, Long> inUcastPktsMap = walkLongColumn(snmp, target, ifHCInUcastPkts);
         Map<Integer, Long> inMulticastPktsMap = walkLongColumn(snmp, target, ifHCInMulticastPkts);
         Map<Integer, Long> inBroadcastPktsMap = walkLongColumn(snmp, target, ifHCInBroadcastPkts);
-        Map<Integer, Long> outOctetsMap = walkLongColumn(snmp, target, ifHCOutOctets);
         Map<Integer, Long> outUcastPktsMap = walkLongColumn(snmp, target, ifHCOutUcastPkts);
         Map<Integer, Long> outMulticastPktsMap = walkLongColumn(snmp, target, ifHCOutMulticastPkts);
         Map<Integer, Long> outBroadcastPktsMap = walkLongColumn(snmp, target, ifHCOutBroadcastPkts);
         Map<Integer, Long> highSpeedsMap = walkLongColumn(snmp, target, ifHighSpeed); // Mbps
         Map<Integer, Long> fallbackSpeedsMap = walkLongColumn(snmp, target, ifSpeed); // bps
 
+        // --- Histogram HELP/TYPE ---
+        sb.append("# HELP interface_utilization Bandwidth utilization percentage over time\n");
+        sb.append("# TYPE interface_utilization histogram\n");
+
         for (Integer idx : ifNamesMap.keySet()) {
             String ifName = ifNamesMap.get(idx);
             long inOctets = inOctetsMap.getOrDefault(idx, 0L);
+            long outOctets = outOctetsMap.getOrDefault(idx, 0L);
+            long total = inOctets + outOctets;
+
             long inUcastPkts = inUcastPktsMap.getOrDefault(idx, 0L);
             long inMulticastPkts = inMulticastPktsMap.getOrDefault(idx, 0L);
             long inBroadcastPkts = inBroadcastPktsMap.getOrDefault(idx, 0L);
-            long outOctets = outOctetsMap.getOrDefault(idx, 0L);
             long outUcastPkts = outUcastPktsMap.getOrDefault(idx, 0L);
             long outMulticastPkts = outMulticastPktsMap.getOrDefault(idx, 0L);
             long outBroadcastPkts = outBroadcastPktsMap.getOrDefault(idx, 0L);
@@ -139,10 +149,10 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
             sb.append(String.format("ifHCOutMulticastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outMulticastPkts));
             sb.append(String.format("ifHCOutBroadcastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outBroadcastPkts));
             sb.append(String.format("ifSpeed_bps{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, speedBps));
-            sb.append(String.format("if_total_octets{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, inOctets + outOctets));
+            sb.append(String.format("if_total_octets{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, total));
 
-            // Histograms temporarily disabled
-            // renderHistogram(instance, ifName, total, speedBps).ifPresent(sb::append);
+            histogramService.renderUtilizationHistogram(instance, ifName, total, speedBps).ifPresent(sb::append);
+
         }
 
         return sb.toString();
@@ -178,36 +188,4 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
         return results;
     }
 
-    private Optional<String> renderHistogram(String instance, String ifName, long current, long speed) {
-        if (speed <= 0) return Optional.empty();
-
-        String key = instance + ":" + ifName;
-        Instant now = Instant.now();
-        Snapshot prev = previousSnapshots.get(key);
-        previousSnapshots.put(key, new Snapshot(current, now));
-
-        if (prev == null) return Optional.empty();
-
-        long deltaBytes = current - prev.total;
-        long deltaTime = Duration.between(prev.timestamp, now).toMillis();
-        if (deltaBytes < 0 || deltaTime <= 0) return Optional.empty();
-
-        double bps = (deltaBytes * 8.0) / (deltaTime / 1000.0);
-        double utilization = (bps / speed) * 100.0;
-
-        int[] buckets = {1, 5, 10, 25, 50, 75, 90, 95, 100};
-        StringBuilder sb = new StringBuilder();
-        for (int b : buckets) {
-            sb.append(String.format(
-                    "interface_utilization_bucket{instance=\"%s\",if=\"%s\",le=\"%d\"} %d\n",
-                    instance, ifName, b, utilization <= b ? 1 : 0
-            ));
-        }
-
-        sb.append(String.format("interface_utilization_count{instance=\"%s\",if=\"%s\"} 1\n", instance, ifName));
-        sb.append(String.format("interface_utilization_sum{instance=\"%s\",if=\"%s\"} %.2f\n", instance, ifName, utilization));
-        return Optional.of(sb.toString());
-    }
-
-    private record Snapshot(long total, Instant timestamp) {}
 }
