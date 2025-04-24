@@ -46,7 +46,7 @@ public class SnmpDiscoveryScheduler {
                     discoveryService.discoverMultiple(targets, 161, "public");
 
             CompletableFuture<List<UserAgent>> v3Future =
-                    discoveryService.discoverMultipleV3(targets, 161, "demoUser", "authpass123", "privpass123");
+                    discoveryService.discoverMultipleV3(targets, 161, "demoUser", "SHA256", "authpass123", "AES256", "privpass123");
 
             v2Future.thenAccept(v2Agents -> {
                 log.info("SNMPv2 discovery complete: {} agents", v2Agents.size());

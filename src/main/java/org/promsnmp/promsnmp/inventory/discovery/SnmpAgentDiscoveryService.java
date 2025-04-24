@@ -197,12 +197,15 @@ public class SnmpAgentDiscoveryService {
                         .collect(Collectors.toList()));
     }
 
-    public CompletableFuture<List<UserAgent>> discoverMultipleV3(List<InetAddress> addresses, int port,
+    public CompletableFuture<List<UserAgent>> discoverMultipleV3(List<InetAddress> addresses,
+                                                                 int port,
                                                                  String username,
+                                                                 String authProtocol,
                                                                  String authPass,
+                                                                 String privProtocol,
                                                                  String privPass) {
         List<CompletableFuture<Optional<UserAgent>>> futures = addresses.stream()
-                .map(addr -> discoverUserAgent(addr, port, username, authPass, privPass))
+                .map(addr -> discoverUserAgent(addr, port, username, authProtocol, authPass, privProtocol, privPass))
                 .toList();
 
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
