@@ -17,6 +17,7 @@ public class UserAgent extends Agent {
     private String authPassphrase;
     private String privProtocol;
     private String privPassphrase;
+    private String engineId;
 
     @Override
     public String getType() {

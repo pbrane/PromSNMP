@@ -38,7 +38,8 @@ public class SnmpDiscoveryScheduler {
 
             List<InetAddress> targets = List.of(
                     InetAddress.getByName("127.0.0.1"),
-                    InetAddress.getByName("192.168.1.1")
+                    InetAddress.getByName("192.168.1.1"),
+                    InetAddress.getByName("192.168.1.63")
             );
 
             CompletableFuture<List<CommunityAgent>> v2Future =

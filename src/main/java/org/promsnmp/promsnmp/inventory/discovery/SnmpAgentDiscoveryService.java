@@ -4,9 +4,9 @@ import org.promsnmp.promsnmp.model.*;
 import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
 import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
+import org.promsnmp.promsnmp.utils.Snmpv3Utils;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
-import org.snmp4j.mp.MPv3;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.security.*;
 import org.snmp4j.smi.*;
@@ -124,9 +124,6 @@ public class SnmpAgentDiscoveryService {
                                                                     String privPass) {
         try {
             OctetString user = new OctetString(username);
-            OID authProtocol = AuthSHA.ID;
-            OID privProtocol = PrivAES128.ID;
-
             UserTarget<UdpAddress> target = new UserTarget<>();
             target.setAddress(new UdpAddress(address, port));
             target.setRetries(1);
@@ -139,41 +136,40 @@ public class SnmpAgentDiscoveryService {
             Snmp snmp = new Snmp(transport);
             snmp.listen();
 
-            USM usm = new USM(SecurityProtocols.getInstance(), new OctetString(MPv3.createLocalEngineID()), 0);
-            SecurityModels.getInstance().addSecurityModel(usm);
-            snmp.getUSM().addUser(user,
-                    new UsmUser(user, authProtocol, new OctetString(authPass), privProtocol, new OctetString(privPass)));
+            // Use helper to register SNMPv3 user and discover engine ID
+            UserAgent agent = new UserAgent();
+            agent.setEndpoint(new AgentEndpoint(address, port));
+            agent.setRetries(1);
+            agent.setTimeout(1000);
+            agent.setVersion(SnmpConstants.version3);
+            agent.setSecurityName(username);
+            agent.setSecurityLevel(SecurityLevel.AUTH_PRIV);
+            agent.setAuthProtocol("SHA"); // or configurable
+            agent.setAuthPassphrase(authPass);
+            agent.setPrivProtocol("AES128"); // or configurable
+            agent.setPrivPassphrase(privPass);
+            agent.setDiscoveredAt(Instant.now());
+
+            // Discover and register the engineId
+            Snmpv3Utils.registerUser(snmp, agent);
 
             ScopedPDU pdu = new ScopedPDU();
             pdu.setType(PDU.GET);
             pdu.add(new VariableBinding(SYS_OBJECT_ID_OID));
 
-            ResponseEvent event = snmp.get(pdu, target);
+            ResponseEvent<UdpAddress> event = snmp.get(pdu, target);
             if (event.getResponse() != null && !event.getResponse().getVariableBindings().isEmpty()) {
                 VariableBinding vb = event.getResponse().get(0);
                 if (!vb.getVariable().isException()) {
-                    AgentEndpoint endpoint = new AgentEndpoint(address, port);
-                    if (userRepo.findByEndpoint(endpoint).isEmpty()) {
-                        UserAgent agent = new UserAgent();
-                        agent.setEndpoint(endpoint);
-                        agent.setRetries(1);
-                        agent.setTimeout(1000);
-                        agent.setVersion(SnmpConstants.version3);
-                        agent.setSecurityName(username);
-                        agent.setSecurityLevel(SecurityLevel.AUTH_PRIV);
-                        agent.setAuthPassphrase(authPass);
-                        agent.setPrivPassphrase(privPass);
-                        agent.setDiscoveredAt(Instant.now());
-
+                    if (userRepo.findByEndpoint(agent.getEndpoint()).isEmpty()) {
                         loadDeviceFromMib2(snmp, target).ifPresent(agent::setDevice);
-
                         return CompletableFuture.completedFuture(Optional.of(userRepo.save(agent)));
                     }
                 }
             }
 
         } catch (Exception e) {
-            // log as needed
+            // log error appropriately
         }
         return CompletableFuture.completedFuture(Optional.empty());
     }
