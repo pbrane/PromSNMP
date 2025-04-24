@@ -15,11 +15,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("/promSnmp")
@@ -31,16 +35,23 @@ public class PromSnmpController {
 
     private final NetworkDeviceRepository networkDeviceRepository;
 
+    private final ThreadPoolTaskExecutor snmpDiscoveryExecutor;
+    private final ThreadPoolTaskExecutor snmpMetricsExecutor;
+
     public PromSnmpController(
             @Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService discoveryService,
-            CacheManager cacheManager, NetworkDeviceRepository networkDeviceRepository) {
+            CacheManager cacheManager,
+            NetworkDeviceRepository networkDeviceRepository,
+            @Qualifier("snmpDiscoveryExecutor") ThreadPoolTaskExecutor discoveryExecutor,
+            @Qualifier("snmpMetricsExecutor") ThreadPoolTaskExecutor metricsExecutor) {
         this.prometheusMetricsService = metricsService;
         this.prometheusDiscoveryService = discoveryService;
         this.cacheManager = cacheManager;
         this.networkDeviceRepository = networkDeviceRepository;
+        this.snmpDiscoveryExecutor = discoveryExecutor;
+        this.snmpMetricsExecutor = metricsExecutor;
     }
-
 
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
@@ -124,4 +135,26 @@ public class PromSnmpController {
         networkDeviceRepository.saveAll(dto.getDevices());
         return ResponseEntity.ok("Inventory imported successfully.");
     }
+
+    @GetMapping("/threadPools")
+    public Map<String, Object> threadPoolStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        stats.put("snmpDiscoveryExecutor", Map.of(
+                "active", snmpDiscoveryExecutor.getActiveCount(),
+                "poolSize", snmpDiscoveryExecutor.getPoolSize(),
+                "maxPoolSize", snmpDiscoveryExecutor.getMaxPoolSize(),
+                "queueSize", snmpDiscoveryExecutor.getThreadPoolExecutor().getQueue().size()
+        ));
+
+        stats.put("snmpMetricsExecutor", Map.of(
+                "active", snmpMetricsExecutor.getActiveCount(),
+                "poolSize", snmpMetricsExecutor.getPoolSize(),
+                "maxPoolSize", snmpMetricsExecutor.getMaxPoolSize(),
+                "queueSize", snmpMetricsExecutor.getThreadPoolExecutor().getQueue().size()
+        ));
+
+        return stats;
+    }
+
 }

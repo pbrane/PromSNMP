@@ -9,6 +9,10 @@ services:
       - CACHE_STATS_RATE_MILLIS=60000
       - CACHE_EXP_MILLIS=300000
       - CACHE_ENTRY_CNT=10000
+      - DISCOVERY_CRON=0 0 2 * * *
+      - DISCOVERY_TZ=America/New_York
+      - DISCOVERY_ON_START=true
+      - COLLECTION_INTERVAL=30000
       - SERVER_PORT=8080
     build:
       context: .

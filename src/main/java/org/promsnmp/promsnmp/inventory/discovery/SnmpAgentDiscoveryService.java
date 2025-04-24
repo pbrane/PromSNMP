@@ -67,7 +67,7 @@ public class SnmpAgentDiscoveryService {
             }
 
             if (sysName != null) {
-                return deviceRepo.findBySysName(sysName).or(() -> {
+                return deviceRepo.findBySysNameWithAgents(sysName).or(() -> {
                     device.setDiscoveredAt(Instant.now());
                     return Optional.of(deviceRepo.save(device));
                 });
@@ -76,7 +76,7 @@ public class SnmpAgentDiscoveryService {
         return Optional.empty();
     }
 
-    @Async("snmpExecutor")
+    @Async("snmpDiscoveryExecutor")
     public CompletableFuture<Optional<CommunityAgent>> discoverCommunityAgent(InetAddress address, int port, String community) {
         try {
             CommunityTarget<UdpAddress> target = new CommunityTarget<>();
@@ -121,7 +121,7 @@ public class SnmpAgentDiscoveryService {
         return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    @Async("snmpExecutor")
+    @Async("snmpDiscoveryExecutor")
     public CompletableFuture<Optional<UserAgent>> discoverUserAgent(
             InetAddress address,
             int port,
