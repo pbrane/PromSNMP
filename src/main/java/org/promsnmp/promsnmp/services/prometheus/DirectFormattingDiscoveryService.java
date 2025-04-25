@@ -17,4 +17,9 @@ public class DirectFormattingDiscoveryService implements PrometheusDiscoveryServ
     public Optional<String> getMetrics(String instance, boolean regex) {
         return Optional.empty();
     }
+
+    @Override
+    public Optional<String> forceRefreshMetrics(String instance, boolean regex) {
+        return Optional.empty();
+    }
 }

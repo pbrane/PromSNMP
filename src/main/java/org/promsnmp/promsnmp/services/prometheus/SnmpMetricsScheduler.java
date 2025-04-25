@@ -5,6 +5,7 @@ import org.promsnmp.promsnmp.model.NetworkDevice;
 import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
 import org.promsnmp.promsnmp.repositories.prometheus.SnmpMetricsRepository;
+import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -27,16 +28,20 @@ public class SnmpMetricsScheduler {
     private final ConcurrentHashMap<String, AtomicBoolean> collectionLocks = new ConcurrentHashMap<>();
     private final Executor snmpExecutor;
 
+    private final CachedMetricsService cachedMetricsService;
+
     @Value("${COLLECTION_INTERVAL:300000}")
     private int collectionInterval;
 
     public SnmpMetricsScheduler(NetworkDeviceRepository deviceRepository,
                                 @Qualifier("configuredMetricsRepo") PrometheusMetricsRepository snmpMetricsRepository,
-                                @Qualifier("snmpDiscoveryExecutor") Executor snmpExecutor) {
+                                @Qualifier("snmpDiscoveryExecutor") Executor snmpExecutor,
+                                CachedMetricsService cachedMetricsService) {
 
         this.deviceRepository = deviceRepository;
         this.snmpMetricsRepository = snmpMetricsRepository;
         this.snmpExecutor = snmpExecutor;
+        this.cachedMetricsService = cachedMetricsService;
     }
 
     @Scheduled(fixedRateString = "${collection.interval:30000}") // Every 30 seconds
@@ -70,7 +75,8 @@ public class SnmpMetricsScheduler {
         return CompletableFuture.runAsync(() -> {
             try {
                 log.debug("Collecting metrics for instance: {}", instance);
-                snmpMetricsRepository.readMetrics(instance);
+                //snmpMetricsRepository.readMetrics(instance);
+                cachedMetricsService.refreshMetrics(instance);
             } catch (Exception ex) {
                 log.error("Error during SNMP metric collection for instance: {}", instance, ex);
             } finally {

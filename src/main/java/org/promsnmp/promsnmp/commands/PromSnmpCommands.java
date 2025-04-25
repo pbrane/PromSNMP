@@ -43,22 +43,22 @@ public class PromSnmpCommands {
         this.userAgentRepository = userAgentRepository;
     }
 
-    @ShellMethod("Collect SNMP metrics for a given instance. Use regex=true for pattern matching.")
-    public String collectSnmpMetrics(
-            @ShellOption(help = "Instance name (sysName)") String instance,
-            @ShellOption(defaultValue = "false", help = "Enable regex matching") boolean regex
-    ) {
-        return prometheusMetricsService.getMetrics(instance, regex)
-                .orElse("No metrics available or SNMP walk failed.");
-    }
-
-
     @ShellMethod(key = "hello", value = "Returns a greeting message.")
     public String hello() {
         return "Hello World";
     }
 
-    @ShellMethod(key = "metrics", value = "Displays sample metric data, optionally filtered by instance name.")
+
+    @ShellMethod(key = "collectSnmpMetrics", value = "Immediately collect SNMP metrics for a given instance. Use regex=true for pattern matching.")
+    public String collectSnmpMetrics(
+            @ShellOption(help = "Instance name (sysName)") String instance,
+            @ShellOption(defaultValue = "false", help = "Enable regex matching") boolean regex) {
+
+        return prometheusMetricsService.forceRefreshMetrics(instance, regex)
+                .orElse("Collection failed or no metrics returned.");
+    }
+
+    @ShellMethod(key = "metrics", value = "Displays metric data from cache, optionally filtered by instance name.")
     public Optional<String> metrics(
             @ShellOption(defaultValue = "false", help = "Treat the instance filter as a regular expression.") boolean regex,
             @ShellOption(defaultValue = ShellOption.NULL, help = "Optional instance name to filter (e.g., router-1.example.com)") String instance) {
@@ -84,9 +84,9 @@ public class PromSnmpCommands {
     @ShellMethod(key = "discoverAgent", value = "Discover an SNMPv2 agent at a given IP address and port with community string")
     public String discoverOne(
             @ShellOption(help = "IP address", defaultValue = "127.0.0.1") String ip,
-            @ShellOption(help = "Port", defaultValue = "161") int port,
-            @ShellOption(help = "SNMP community string", defaultValue = "public") String community
-    ) {
+            @ShellOption(help = "Port", defaultValue = "161") Integer port,
+            @ShellOption(help = "SNMP community string", defaultValue = "public") String community) {
+
         try {
             InetAddress address = InetAddress.getByName(ip);
             CompletableFuture<Optional<CommunityAgent>> future =

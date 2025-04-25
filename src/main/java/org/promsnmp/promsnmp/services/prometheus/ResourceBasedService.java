@@ -38,6 +38,13 @@ public class ResourceBasedService implements PrometheusMetricsService, Prometheu
                 .map(metrics -> filterByInstance(metrics, instance, regex));
     }
 
+    @Override
+    public Optional<String> forceRefreshMetrics(String instance, boolean regex) {
+        return cachedMetrics.getRawMetrics(instance)
+                .map(this::formatMetrics)
+                .map(metrics -> filterByInstance(metrics, instance, regex));
+    }
+
     private String formatMetrics(String rawMetrics) {
         return Stream.of(rawMetrics.split("\n"))
                 .map(line -> line.matches("# (HELP|TYPE).*") ? "\n" + line : line)

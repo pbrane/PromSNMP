@@ -26,6 +26,11 @@ public class SnmpBasedMetricsService implements PrometheusMetricsService {
                 .map(metrics -> filterByInstance(metrics, instance, regex));
     }
 
+    @Override
+    public Optional<String> forceRefreshMetrics(String instance, boolean regex) {
+        return cachedMetrics.refreshMetrics(instance);
+    }
+
     private String formatMetrics(String rawMetrics) {
         return Stream.of(rawMetrics.split("\n"))
                 .map(line -> line.matches("# (HELP|TYPE).*") ? "\n" + line : line)
