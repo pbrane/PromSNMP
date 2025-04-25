@@ -57,7 +57,7 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
 
     @Override
     public Optional<String> readMetrics(String instance) {
-        return deviceRepository.findBySysName(instance)
+        return deviceRepository.findBySysNameWithAgents(instance)
                 .flatMap(device -> {
                     Agent agent = device.resolvePrimaryAgent();
                     if (agent == null) {
