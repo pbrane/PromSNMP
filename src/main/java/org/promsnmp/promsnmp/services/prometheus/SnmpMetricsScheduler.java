@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -24,14 +25,18 @@ public class SnmpMetricsScheduler {
     private final PrometheusMetricsRepository snmpMetricsRepository;
 
     private final ConcurrentHashMap<String, AtomicBoolean> collectionLocks = new ConcurrentHashMap<>();
+    private final Executor snmpExecutor;
 
     @Value("${COLLECTION_INTERVAL:300000}")
     private int collectionInterval;
 
     public SnmpMetricsScheduler(NetworkDeviceRepository deviceRepository,
-                                @Qualifier("configuredMetricsRepo") PrometheusMetricsRepository snmpMetricsRepository) {
+                                @Qualifier("configuredMetricsRepo") PrometheusMetricsRepository snmpMetricsRepository,
+                                @Qualifier("snmpDiscoveryExecutor") Executor snmpExecutor) {
+
         this.deviceRepository = deviceRepository;
         this.snmpMetricsRepository = snmpMetricsRepository;
+        this.snmpExecutor = snmpExecutor;
     }
 
     @Scheduled(fixedRateString = "${collection.interval:30000}") // Every 30 seconds
@@ -71,6 +76,7 @@ public class SnmpMetricsScheduler {
             } finally {
                 lock.set(false); // Always release the lock
             }
-        });
+        }, snmpExecutor);
+
     }
 }

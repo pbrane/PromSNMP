@@ -41,10 +41,12 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<!-- Enable @Async and task executors -->
+<!--
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-task</artifactId>
 		</dependency>
+-->
 		<!-- SNMP4J for SNMP operations -->
 		<dependency>
 			<groupId>org.snmp4j</groupId>

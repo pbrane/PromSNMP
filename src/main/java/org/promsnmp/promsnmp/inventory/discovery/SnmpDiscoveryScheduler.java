@@ -5,8 +5,6 @@ import org.promsnmp.promsnmp.inventory.InventoryPublisher;
 import org.promsnmp.promsnmp.model.CommunityAgent;
 import org.promsnmp.promsnmp.model.UserAgent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,26 +28,13 @@ public class SnmpDiscoveryScheduler {
     @Value("${DISCOVERY_TZ:America/New_York}")
     private String discoveryZone;
 
-    @Value("${DISCOVERY_ON_START:false}")
-    private boolean discoverOnStart;
-
     public SnmpDiscoveryScheduler(SnmpAgentDiscoveryService discoveryService, InventoryPublisher publisher) {
+        log.info("SnmpDiscoveryScheduler constructor called");
         this.discoveryService = discoveryService;
         this.publisher = publisher;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
     public void discoverOnStartup() {
-        if (!discoverOnStart) {
-            log.info("DISCOVER_ON_START is false — skipping initial discovery.");
-            return;
-        }
-
-        if (!running.compareAndSet(false, true)) {
-            log.warn("Initial discovery already in progress or was triggered — skipping.");
-            return;
-        }
-
         log.info("DISCOVER_ON_START is true — performing initial discovery...");
         CompletableFuture.runAsync(() -> {
             try {
@@ -62,6 +47,7 @@ public class SnmpDiscoveryScheduler {
 
     @Scheduled(cron = "${discovery.cron:0 0 2 * * *}", zone = "${discovery.zone:America/New_York}")
     public void scheduledDiscovery() {
+
         if (!running.compareAndSet(false, true)) {
             log.warn("Discovery already in progress — skipping this run.");
             log.debug("Cron: {}, TZ: {}", discoveryCronExpression, discoveryZone);
