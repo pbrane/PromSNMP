@@ -1,9 +1,13 @@
 ---
 name: promsnmp-build
-run-name: Build and run test suites
+run-name: Build PromSNMP
 on:
   workflow_dispatch:
   push:
+    branches:
+      - '*'
+    tags:
+      - 'v*'  # Only version tags like v1.0.0
 
 jobs:
   build:
@@ -15,11 +19,16 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
+      - name: Set a OCI floating tag for a release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "OCI_RELEASE_CANDIDATE=latest" >> ${GITHUB_ENV}
       - name: Set version number, data and short git hash
         run: |
           echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> ${GITHUB_ENV}
           echo "SHORT_GIT_SHA=$(git rev-parse --short HEAD)" >> ${GITHUB_ENV}
           echo "BUILD_DATE"=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> ${GITHUB_ENV}
+          echo "OCI_FLOATING_TAG=${OCI_RELEASE_CANDIDATE:-snapshot}" >> ${GITHUB_ENV}
       - name: Build and run tests
         run: make
       - name: Persist JAR artifact
@@ -48,4 +57,4 @@ jobs:
             DATE=${{ env.BUILD_DATE }}
             GIT_SHORT_HASH=${{ env.SHORT_GIT_SHA }}
             VERSION=${{ env.VERSION }}
-          tags: ghcr.io/pbrane/promsnmp:${{ env.SHORT_GIT_SHA }}
+          tags: ghcr.io/pbrane/promsnmp:${{ env.SHORT_GIT_SHA }},ghcr.io/pbrane/promsnmp:${{ env.VERSION }},ghcr.io/pbrane/promsnmp:${{ env.OCI_FLOATING_TAG }}
