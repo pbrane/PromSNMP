@@ -1,7 +1,7 @@
 services:
   promSnmp:
     container_name: promSnmp
-    image: pbranestrategy/promsnmp:0.0.4
+    image: pbranestrategy/promsnmp:0.0.5
     environment:
       - PROM_DISCOVERY_API=snmp
       - PROM_METRICS_API=snmp
