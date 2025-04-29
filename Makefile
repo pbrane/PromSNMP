@@ -18,18 +18,19 @@ SNAPSHOT_VERSION    := $(MAJOR_VERSION).$(MINOR_VERSION).$(shell expr $(PATCH_VE
 RELEASE_LOG         := $(ARTIFACTS_DIR)/release.log
 OK                  := "[ 👍 ]"
 
-.PHONY help:
+.PHONY: help
 help:
 	@echo ""
 	@echo "Build PromSNMP from source"
 	@echo "Goals:"
 	@echo "  help:         Show this help with explaining the build goals"
-	@echo "  promsnmp      Compile, assemble and run test suite"
+	@echo "  promsnmp:     Compile, assemble"
+	@echo "  oci:          Build container image tagged with: $(OCI_TAG)"
 	@echo "  clean:        Clean the build artifacts"
 	@echo "  release:      Create a release in the local repository, e.g. make release RELEASE_VERSION=x.y.z"
 	@echo ""
 
-.PHONY deps-build:
+.PHONY: deps-build
 deps-build:
 	@echo -n "👮‍♀️ Create artifact directory:   "
 	@mkdir -p $(ARTIFACTS_DIR)
@@ -50,15 +51,15 @@ deps-build:
 	@mvn -version | grep 'Java version: $(JAVA_MAJOR_VERSION)\.[[:digit:]]*\.[[:digit:]]*' >/dev/null
 	@echo $(OK)
 
-.PHONY deps-oci:
+.PHONY: deps-oci
 deps-oci:
 	command -v docker
 
-.PHONY promsnmp:
+.PHONY: promsnmp
 promsnmp: deps-build
-	mvn --batch-mode -Dspring.shell.interactive.enabled="false" install
+	mvn --batch-mode -Dspring.shell.interactive.enabled="false" -DskipTests install
 
-.PHONY oci:
+.PHONY: oci
 oci: deps-oci promsnmp
 	docker build -t $(OCI_TAG) \
       --build-arg="VERSION=$(VERSION)" \
@@ -66,7 +67,7 @@ oci: deps-oci promsnmp
       --build-arg="DATE=$(DATE)" \
       .
 
-.PHONY clean:
+.PHONY: clean
 clean: deps-build
 	mvn clean
 
