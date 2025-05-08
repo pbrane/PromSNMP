@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -56,5 +57,32 @@ public class NetworkDevice {
     public Agent resolvePrimaryAgent() {
         return (primaryAgent != null) ? primaryAgent :
                 (!agents.isEmpty() ? agents.getFirst() : null);
+    }
+
+    public NetworkDevice cloneForImport() {
+        NetworkDevice copy = new NetworkDevice();
+        copy.setId(null); // Let JPA generate a new ID
+        copy.setSysName(this.getSysName());
+        copy.setSysDescr(this.getSysDescr());
+        copy.setSysContact(this.getSysContact());
+        copy.setSysLocation(this.getSysLocation());
+        copy.setDiscoveredAt(Instant.now());
+
+        // Clone agents with a reference to the new device
+        List<Agent> clonedAgents = this.getAgents().stream()
+                .map(original -> original.cloneForImport(copy))
+                .toList();
+        copy.setAgents(clonedAgents);
+
+        // Re-link the primary agent if present
+        if (this.getPrimaryAgent() != null) {
+            Optional<Agent> matching = clonedAgents.stream()
+                    .filter(a -> a.matches(this.getPrimaryAgent()))
+                    .findFirst();
+
+            matching.ifPresent(copy::setPrimaryAgent);
+        }
+
+        return copy;
     }
 }

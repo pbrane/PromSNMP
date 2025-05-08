@@ -23,4 +23,21 @@ public class UserAgent extends Agent {
     public String getType() {
         return "snmp-user";
     }
+
+    @Override
+    public Agent copy() {
+        UserAgent copy = new UserAgent();
+        copy.setEndpoint(new AgentEndpoint(this.getEndpoint()));
+        copy.setVersion(this.getVersion());
+        copy.setTimeout(this.getTimeout());
+        copy.setRetries(this.getRetries());
+        copy.setSecurityName(this.getSecurityName());
+        copy.setSecurityLevel(this.getSecurityLevel());
+        copy.setAuthProtocol(this.getAuthProtocol());
+        copy.setAuthPassphrase(this.getAuthPassphrase());
+        copy.setPrivProtocol(this.getPrivProtocol());
+        copy.setPrivPassphrase(this.getPrivPassphrase());
+        return copy;
+    }
+
 }

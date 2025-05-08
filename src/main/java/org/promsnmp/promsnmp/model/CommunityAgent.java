@@ -18,4 +18,17 @@ public class CommunityAgent extends Agent {
     public String getType() {
         return "snmp-community";
     }
+
+    @Override
+    public Agent copy() {
+        CommunityAgent copy = new CommunityAgent();
+        copy.setEndpoint(new AgentEndpoint(this.getEndpoint()));
+        copy.setVersion(this.getVersion());
+        copy.setTimeout(this.getTimeout());
+        copy.setRetries(this.getRetries());
+        copy.setReadCommunity(this.getReadCommunity());
+        copy.setWriteCommunity(this.getWriteCommunity());
+        return copy;
+    }
+
 }

@@ -22,7 +22,19 @@ public class DiscoverySeedService {
 
     private final DiscoverySeedRepository seedRepo;
 
-    public UUID saveSeed(DiscoveryRequestDTO dto) {
+    public void persistInventorySeed(DiscoverySeed seed) {
+        if (seed.getPotentialTargets() == null || seed.getPotentialTargets().isEmpty()) {
+            throw new IllegalArgumentException("Seed must include at least one target.");
+        }
+        if (seed.getId() == null) {
+            seed.setId(UUID.randomUUID());
+        }
+
+        seedRepo.save(seed);
+        log.info("Persisted imported discovery seed with ID: {}", seed.getId());
+    }
+
+    public void saveDiscoverySeed(DiscoveryRequestDTO dto) {
         UUID contextId = UUID.randomUUID();
         List<String> targets = IpUtils.resolveValidAddresses(dto.getPotentialTargets(), contextId);
 
@@ -55,7 +67,6 @@ public class DiscoverySeedService {
         seedRepo.save(seed);
         log.info("Saved discovery seed with ID {} for agentType={} and IPs={}",
                 seed.getId(), seed.getAgentType(), String.join(", ", targets));
-        return seed.getId();
     }
 
     public List<DiscoverySeed> findAllSeeds() {

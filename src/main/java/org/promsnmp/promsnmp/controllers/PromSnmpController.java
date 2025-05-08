@@ -1,11 +1,9 @@
 package org.promsnmp.promsnmp.controllers;
 
 import org.promsnmp.promsnmp.dto.InventoryDTO;
-import org.promsnmp.promsnmp.model.Agent;
-import org.promsnmp.promsnmp.model.NetworkDevice;
-import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
-import org.promsnmp.promsnmp.services.PrometheusMetricsService;
+import org.promsnmp.promsnmp.services.InventoryService;
 import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.utils.ProtocolOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
@@ -13,17 +11,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import java.util.Map;
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("/promSnmp")
@@ -33,7 +27,7 @@ public class PromSnmpController {
     private final PrometheusDiscoveryService prometheusDiscoveryService;
     private final CacheManager cacheManager;
 
-    private final NetworkDeviceRepository networkDeviceRepository;
+    private final InventoryService inventoryService;
 
     private final ThreadPoolTaskExecutor snmpDiscoveryExecutor;
     private final ThreadPoolTaskExecutor snmpMetricsExecutor;
@@ -42,13 +36,13 @@ public class PromSnmpController {
             @Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService discoveryService,
             CacheManager cacheManager,
-            NetworkDeviceRepository networkDeviceRepository,
+            InventoryService inventoryService,
             @Qualifier("snmpDiscoveryExecutor") ThreadPoolTaskExecutor discoveryExecutor,
             @Qualifier("snmpMetricsExecutor") ThreadPoolTaskExecutor metricsExecutor) {
         this.prometheusMetricsService = metricsService;
         this.prometheusDiscoveryService = discoveryService;
         this.cacheManager = cacheManager;
-        this.networkDeviceRepository = networkDeviceRepository;
+        this.inventoryService = inventoryService;
         this.snmpDiscoveryExecutor = discoveryExecutor;
         this.snmpMetricsExecutor = metricsExecutor;
     }
@@ -89,7 +83,6 @@ public class PromSnmpController {
         return "Cache cleared.";
     }
 
-
     @GetMapping("/authProtocols")
     public List<String> getAuthProtocols() {
         return ProtocolOptions.getSupportedAuthProtocols();
@@ -101,38 +94,13 @@ public class PromSnmpController {
     }
 
     @GetMapping("/inventory")
-    public InventoryDTO exportInventory() {
-        List<NetworkDevice> allDevices = networkDeviceRepository.findAll();
-        InventoryDTO dto = new InventoryDTO();
-        dto.setDevices(allDevices);
-        return dto;
+    public ResponseEntity<InventoryDTO> exportInventory() {
+        return ResponseEntity.ok(inventoryService.exportInventory());
     }
 
     @PostMapping("/inventory")
-    @Transactional
     public ResponseEntity<?> importInventory(@RequestBody InventoryDTO dto) {
-        networkDeviceRepository.deleteAll();
-
-        for (NetworkDevice device : dto.getDevices()) {
-            device.setId(null); // Let JPA assign a new ID
-            device.setDiscoveredAt(Instant.now());
-
-            for (Agent agent : device.getAgents()) {
-                agent.setId(UUID.randomUUID()); // New ID for agents
-                agent.setDevice(device);
-                agent.setDiscoveredAt(Instant.now());
-            }
-
-            if (device.getPrimaryAgent() != null) {
-                // Re-resolve the primaryAgent to the matching one in new list
-                UUID oldId = device.getPrimaryAgent().getId();
-                device.setPrimaryAgent(device.getAgents().stream()
-                        .filter(a -> a.getId().equals(oldId))
-                        .findFirst().orElse(null));
-            }
-        }
-
-        networkDeviceRepository.saveAll(dto.getDevices());
+        inventoryService.importInventory(dto);
         return ResponseEntity.ok("Inventory imported successfully.");
     }
 

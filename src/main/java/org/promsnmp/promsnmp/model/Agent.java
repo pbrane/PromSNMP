@@ -43,5 +43,21 @@ public abstract class Agent {
     private NetworkDevice device;
 
     public abstract String getType();
+    public abstract Agent copy();
+
+
+    public Agent cloneForImport(NetworkDevice newDevice) {
+        Agent copy = this.copy(); // Deep clone for subclass
+        copy.setId(UUID.randomUUID());
+        copy.setDevice(newDevice);
+        copy.setDiscoveredAt(Instant.now());
+        return copy;
+    }
+
+    public boolean matches(Agent other) {
+        return this.getEndpoint().equals(other.getEndpoint()) &&
+                this.getClass().equals(other.getClass());
+    }
+
 
 }

@@ -41,7 +41,7 @@ public class DiscoveryManagementService {
 
                 future.thenAccept(agents -> {
                     if (shouldPersist) {
-                        seedService.saveSeed(request);
+                        seedService.saveDiscoverySeed(request);
                     }
                     agents.forEach(a -> {
                         a.setVersion(snmpVersion);
@@ -50,7 +50,7 @@ public class DiscoveryManagementService {
                     inventoryPublisher.publish(agents);
                 });
             } else {
-                seedService.saveSeed(request);
+                seedService.saveDiscoverySeed(request);
             }
 
         } else if ("snmp-user".equals(request.getAgentType())) {
@@ -66,7 +66,7 @@ public class DiscoveryManagementService {
 
                 future.thenAccept(agents -> {
                     if (shouldPersist) {
-                        seedService.saveSeed(request);
+                        seedService.saveDiscoverySeed(request);
                     }
                     agents.forEach(a -> {
                         a.setVersion(snmpVersion);
@@ -75,7 +75,7 @@ public class DiscoveryManagementService {
                     inventoryPublisher.publish(agents);
                 });
             } else {
-                seedService.saveSeed(request);
+                seedService.saveDiscoverySeed(request);
             }
 
         } else {

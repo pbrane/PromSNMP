@@ -8,4 +8,5 @@ import java.util.List;
 @Data
 public class InventoryDTO {
     private List<NetworkDevice> devices;
+    private List<DiscoverySeedDTO> discoverySeeds;
 }
