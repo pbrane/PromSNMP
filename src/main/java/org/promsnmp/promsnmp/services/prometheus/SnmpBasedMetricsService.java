@@ -22,7 +22,7 @@ public class SnmpBasedMetricsService implements PrometheusMetricsService {
     @Override
     public Optional<String> getMetrics(String instance, boolean regex) {
         return cachedMetrics.getRawMetrics(instance)
-                .map(this::formatMetrics)
+                //.map(this::formatMetrics)
                 .map(metrics -> filterByInstance(metrics, instance, regex));
     }
 

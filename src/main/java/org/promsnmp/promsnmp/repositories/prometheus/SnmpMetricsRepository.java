@@ -1,9 +1,8 @@
 package org.promsnmp.promsnmp.repositories.prometheus;
 
+import lombok.extern.slf4j.Slf4j;
 import org.promsnmp.promsnmp.mappers.AgentToTargetMapper;
 import org.promsnmp.promsnmp.model.Agent;
-import org.promsnmp.promsnmp.model.AgentEndpoint;
-import org.promsnmp.promsnmp.model.CommunityAgent;
 import org.promsnmp.promsnmp.model.UserAgent;
 import org.promsnmp.promsnmp.repositories.PrometheusMetricsRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
@@ -28,25 +27,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Map.entry;
+
+@Slf4j
 @Repository("SnmpMetricsRepo")
 public class SnmpMetricsRepository implements PrometheusMetricsRepository {
 
-    public static final String           SYS_UPTIME = "1.3.6.1.2.1.1.3.0";
-    public static final String               ifName = "1.3.6.1.2.1.31.1.1.1.1";
-    public static final String         ifHCInOctets = "1.3.6.1.2.1.31.1.1.1.6";
-    public static final String      ifHCInUcastPkts = "1.3.6.1.2.1.31.1.1.1.7";
-    public static final String  ifHCInMulticastPkts = "1.3.6.1.2.1.31.1.1.1.8";
-    public static final String  ifHCInBroadcastPkts = "1.3.6.1.2.1.31.1.1.1.9";
-    public static final String        ifHCOutOctets = "1.3.6.1.2.1.31.1.1.1.10";
-    public static final String     ifHCOutUcastPkts = "1.3.6.1.2.1.31.1.1.1.11";
-    public static final String ifHCOutMulticastPkts = "1.3.6.1.2.1.31.1.1.1.12";
-    public static final String ifHCOutBroadcastPkts = "1.3.6.1.2.1.31.1.1.1.13";
-    public static final String          ifHighSpeed = "1.3.6.1.2.1.31.1.1.1.15";
-    public static final String              ifSpeed = "1.3.6.1.2.1.2.2.1.5";
+    private record InterfaceInfo(int index, String ifDescr, String ifName, String ifAlias) {}
+    private record MetricInfo(String name, String oid, String help, String type, boolean walkable) {}
+
+    public static final String              SYS_UPTIME = "1.3.6.1.2.1.1.3.0";
+    public static final String                 IF_NAME = "1.3.6.1.2.1.31.1.1.1.1";
+    public static final String         IF_HC_IN_OCTETS = "1.3.6.1.2.1.31.1.1.1.6";
+    public static final String      IF_HC_IN_UCAST_PKTS = "1.3.6.1.2.1.31.1.1.1.7";
+    public static final String  IF_HC_IN_MULTICAST_PKTS = "1.3.6.1.2.1.31.1.1.1.8";
+    public static final String  IF_HC_IN_BROADCAST_PKTS = "1.3.6.1.2.1.31.1.1.1.9";
+    public static final String         IF_HC_OUT_OCTETS = "1.3.6.1.2.1.31.1.1.1.10";
+    public static final String     IF_HC_OUT_UCAST_PKTS = "1.3.6.1.2.1.31.1.1.1.11";
+    public static final String IF_HC_OUT_MULTICAST_PKTS = "1.3.6.1.2.1.31.1.1.1.12";
+    public static final String IF_HC_OUT_BROADCAST_PKTS = "1.3.6.1.2.1.31.1.1.1.13";
+    public static final String            IF_HIGH_SPEED = "1.3.6.1.2.1.31.1.1.1.15";
+    public static final String                 IF_SPEED = "1.3.6.1.2.1.2.2.1.5";
+    public static final String                 IF_DESCR = "1.3.6.1.2.1.2.2.1.2";
+    public static final String                 IF_ALIAS = "1.3.6.1.2.1.31.1.1.1.18";
+
+    private static final Map<String, MetricInfo> METRICS = Map.ofEntries(
+            entry("sysUpTime", new MetricInfo("sysUpTime", SYS_UPTIME, "System uptime in hundredths of a second", "gauge", true)),
+            entry("ifHCInOctets", new MetricInfo("ifHCInOctets", IF_HC_IN_OCTETS, "The total number of octets received on the interface, including framing characters", "counter", true)),
+            entry("ifHCInUcastPkts", new MetricInfo("ifHCInUcastPkts", IF_HC_IN_UCAST_PKTS, "Packets received not addressed to multicast/broadcast", "counter", true)),
+            entry("ifHCInMulticastPkts", new MetricInfo("ifHCInMulticastPkts", IF_HC_IN_MULTICAST_PKTS, "Multicast packets received", "counter", true)),
+            entry("ifHCInBroadcastPkts", new MetricInfo("ifHCInBroadcastPkts", IF_HC_IN_BROADCAST_PKTS, "Broadcast packets received", "counter", true)),
+            entry("ifHCOutOctets", new MetricInfo("ifHCOutOctets", IF_HC_OUT_OCTETS, "The total number of octets transmitted including framing characters", "counter", true)),
+            entry("ifHCOutUcastPkts", new MetricInfo("ifHCOutUcastPkts", IF_HC_OUT_UCAST_PKTS, "Packets sent not addressed to multicast/broadcast", "counter", true)),
+            entry("ifHCOutMulticastPkts", new MetricInfo("ifHCOutMulticastPkts", IF_HC_OUT_MULTICAST_PKTS, "Multicast packets sent", "counter", true)),
+            entry("ifHCOutBroadcastPkts", new MetricInfo("ifHCOutBroadcastPkts", IF_HC_OUT_BROADCAST_PKTS, "Broadcast packets sent", "counter", true)),
+            entry("ifHighSpeed", new MetricInfo("ifHighSpeed", IF_HIGH_SPEED, "Interface speed (Mbps)", "gauge", true)),
+            entry("ifSpeed", new MetricInfo("ifSpeed", IF_SPEED, "Interface speed (bps)", "gauge", true)),
+            entry("interface_utilization", new MetricInfo("interface_utilization", "custom.histogram", "Interface bandwidth utilization as histogram", "histogram", false))
+    );
 
     private final NetworkDeviceRepository deviceRepository;
     private final AgentToTargetMapper agentToTargetMapper;
-
     private final PrometheusHistogramService histogramService;
 
     public SnmpMetricsRepository(NetworkDeviceRepository deviceRepository, AgentToTargetMapper agentToTargetMapper, PrometheusHistogramService histogramService) {
@@ -91,69 +112,87 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
                 });
     }
 
+
     private String walkMetrics(Snmp snmp, Target<UdpAddress> target, String instance) throws IOException {
+        Instant start = Instant.now();
         StringBuilder sb = new StringBuilder();
 
-        // --- System Uptime ---
-        sb.append("# HELP sysUpTime system uptime in hundredths of a second\n");
+        // --- HELP/TYPE for sysUpTime ---
+        sb.append("# HELP sysUpTime system uptime in hundredths of a second - 1.3.6.1.2.1.1.3.0\n");
         sb.append("# TYPE sysUpTime gauge\n");
-        PDU sysPdu = new PDU();
-        sysPdu.add(new VariableBinding(new OID(SnmpMetricsRepository.SYS_UPTIME)));
-        sysPdu.setType(PDU.GET);
 
+        // --- Fetch sysUpTime ---
+        PDU sysPdu = new PDU();
+        sysPdu.add(new VariableBinding(new OID(SYS_UPTIME)));
+        sysPdu.setType(PDU.GET);
         ResponseEvent<UdpAddress> sysResp = snmp.get(sysPdu, target);
         if (sysResp.getResponse() != null && !sysResp.getResponse().getVariableBindings().isEmpty()) {
             Variable uptime = sysResp.getResponse().get(0).getVariable();
             sb.append(String.format("sysUpTime{instance=\"%s\"} %s\n", instance, uptime));
         }
 
-        // --- Interface Metrics ---
-        Map<Integer, String> ifNamesMap = walkStringColumn(snmp, target, ifName);
-        Map<Integer, Long> inOctetsMap = walkLongColumn(snmp, target, ifHCInOctets);
-        Map<Integer, Long> outOctetsMap = walkLongColumn(snmp, target, ifHCOutOctets);
-        Map<Integer, Long> inUcastPktsMap = walkLongColumn(snmp, target, ifHCInUcastPkts);
-        Map<Integer, Long> inMulticastPktsMap = walkLongColumn(snmp, target, ifHCInMulticastPkts);
-        Map<Integer, Long> inBroadcastPktsMap = walkLongColumn(snmp, target, ifHCInBroadcastPkts);
-        Map<Integer, Long> outUcastPktsMap = walkLongColumn(snmp, target, ifHCOutUcastPkts);
-        Map<Integer, Long> outMulticastPktsMap = walkLongColumn(snmp, target, ifHCOutMulticastPkts);
-        Map<Integer, Long> outBroadcastPktsMap = walkLongColumn(snmp, target, ifHCOutBroadcastPkts);
-        Map<Integer, Long> highSpeedsMap = walkLongColumn(snmp, target, ifHighSpeed); // Mbps
-        Map<Integer, Long> fallbackSpeedsMap = walkLongColumn(snmp, target, ifSpeed); // bps
+        // --- Walk common string columns ---
+        Map<Integer, String> ifDescr = walkStringColumn(snmp, target, IF_DESCR);
+        Map<Integer, String> ifName = walkStringColumn(snmp, target, IF_NAME);
+        Map<Integer, String> ifAlias = walkStringColumn(snmp, target, IF_ALIAS);
 
-        // --- Histogram HELP/TYPE ---
-        sb.append("# HELP interface_utilization Bandwidth utilization percentage over time\n");
-        sb.append("# TYPE interface_utilization histogram\n");
-
-        for (Integer idx : ifNamesMap.keySet()) {
-            String ifName = ifNamesMap.get(idx);
-            long inOctets = inOctetsMap.getOrDefault(idx, 0L);
-            long outOctets = outOctetsMap.getOrDefault(idx, 0L);
-            long total = inOctets + outOctets;
-
-            long inUcastPkts = inUcastPktsMap.getOrDefault(idx, 0L);
-            long inMulticastPkts = inMulticastPktsMap.getOrDefault(idx, 0L);
-            long inBroadcastPkts = inBroadcastPktsMap.getOrDefault(idx, 0L);
-            long outUcastPkts = outUcastPktsMap.getOrDefault(idx, 0L);
-            long outMulticastPkts = outMulticastPktsMap.getOrDefault(idx, 0L);
-            long outBroadcastPkts = outBroadcastPktsMap.getOrDefault(idx, 0L);
-            long highSpeedMbps = highSpeedsMap.getOrDefault(idx, 0L);
-            long fallbackSpeedBps = fallbackSpeedsMap.getOrDefault(idx, 0L);
-            long speedBps = highSpeedMbps > 0 ? highSpeedMbps * 1_000_000L : fallbackSpeedBps;
-
-            sb.append(String.format("ifHCInOctets{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, inOctets));
-            sb.append(String.format("ifHCInUcastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, inUcastPkts));
-            sb.append(String.format("ifHCInMulticastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, inMulticastPkts));
-            sb.append(String.format("ifHCInBroadcastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, inBroadcastPkts));
-            sb.append(String.format("ifHCOutOctets{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outOctets));
-            sb.append(String.format("ifHCOutUcastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outUcastPkts));
-            sb.append(String.format("ifHCOutMulticastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outMulticastPkts));
-            sb.append(String.format("ifHCOutBroadcastPkts{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, outBroadcastPkts));
-            sb.append(String.format("ifSpeed_bps{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, speedBps));
-            sb.append(String.format("if_total_octets{instance=\"%s\",interface=\"%s\"} %d\n", instance, ifName, total));
-
-            histogramService.renderUtilizationHistogram(instance, ifName, total, speedBps).ifPresent(sb::append);
-
+        // --- Build InterfaceInfo map ---
+        Map<Integer, InterfaceInfo> interfaces = new HashMap<>();
+        for (Integer idx : ifDescr.keySet()) {
+            interfaces.put(idx, new InterfaceInfo(
+                    idx,
+                    ifDescr.getOrDefault(idx, ""),
+                    ifName.getOrDefault(idx, ""),
+                    ifAlias.getOrDefault(idx, "")
+            ));
         }
+
+        Map<String, Map<Integer, Long>> metricData = new HashMap<>();
+        for (MetricInfo metric : METRICS.values()) {
+            if (!metric.walkable()) continue;
+            Map<Integer, Long> result = null;
+
+            try {
+                result = walkLongColumn(snmp, target, metric.oid());
+
+                if (!result.isEmpty()) {
+//                    emitMetricHeader(sb, metric.name(), result);
+                    metricData.put(metric.name(), result);
+                }
+
+            } catch (IOException e) {
+                log.warn("Skipping metric {} due to OID error: {}", metric.name(), e.getMessage());
+            }
+        }
+
+        for (Map.Entry<Integer, InterfaceInfo> entry : interfaces.entrySet()) {
+            Integer idx = entry.getKey();
+            InterfaceInfo iface = entry.getValue();
+
+            for (Map.Entry<String, Map<Integer, Long>> metricEntry : metricData.entrySet()) {
+                String metric = metricEntry.getKey();
+                long value = metricEntry.getValue().getOrDefault(idx, 0L);
+                emitMetricHeader(sb, metric, metricEntry.getValue());
+                sb.append(render(metric, iface, instance, value));
+            }
+
+            // Optional cumulative histogram
+            long in = metricData.getOrDefault("ifHCInOctets", Map.of()).getOrDefault(idx, 0L);
+            long out = metricData.getOrDefault("ifHCOutOctets", Map.of()).getOrDefault(idx, 0L);
+            long speedBps = metricData.getOrDefault("ifHighSpeed", Map.of()).getOrDefault(idx, 0L) * 1_000_000L;
+            if (speedBps == 0) {
+                speedBps = metricData.getOrDefault("ifSpeed", Map.of()).getOrDefault(idx, 0L);
+            }
+            long total = in + out;
+            histogramService.renderUtilizationHistogram(instance, iface.ifName(), total, speedBps)
+                    .ifPresent(sb::append);
+        }
+
+        // --- Scrape duration ---
+        sb.append("# HELP snmp_scrape_duration_seconds Total SNMP time scrape took (walk and processing).\n");
+        sb.append("# TYPE snmp_scrape_duration_seconds gauge\n");
+        sb.append(String.format("snmp_scrape_duration_seconds{module=\"promsnmp\"} %.6f\n",
+                Duration.between(start, Instant.now()).toMillis() / 1000.0));
 
         return sb.toString();
     }
@@ -186,6 +225,33 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
             }
         }
         return results;
+    }
+
+    private String render(String metric, InterfaceInfo iface, String instance, long value) {
+        return String.format(
+                "%s{instance=\"%s\",ifDescr=\"%s\",ifName=\"%s\",ifIndex=\"%d\",ifAlias=\"%s\"} %d\n",
+                metric,
+                instance,
+                iface.ifDescr(),
+                iface.ifName(),
+                iface.index(),
+                iface.ifAlias(),
+                value
+        );
+    }
+
+    private void emitMetricHeader(StringBuilder sb, String metric, Map<?, ?> values) {
+        if (!values.isEmpty()) {
+            MetricInfo info = METRICS.get(metric);
+            if (info != null) {
+                sb.append(String.format("# HELP %s %s - %s\n", info.name(), info.help(), info.oid()));
+                sb.append(String.format("# TYPE %s %s\n", info.name(), info.type()));
+            }
+        }
+    }
+
+    private String getOidForMetric(String metric) {
+        return METRICS.getOrDefault(metric, new MetricInfo(metric, "unknown", "", "", false)).oid();
     }
 
 }
