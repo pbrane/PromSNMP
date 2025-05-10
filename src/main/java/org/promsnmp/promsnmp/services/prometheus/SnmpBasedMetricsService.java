@@ -4,6 +4,8 @@ import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.promsnmp.promsnmp.services.cache.CachedMetricsService;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,14 +23,33 @@ public class SnmpBasedMetricsService implements PrometheusMetricsService {
 
     @Override
     public Optional<String> getMetrics(String instance, boolean regex) {
-        return cachedMetrics.getRawMetrics(instance)
-                //.map(this::formatMetrics)
+        Instant start = Instant.now();
+
+        Optional<String> rawMetrics = cachedMetrics.getRawMetrics(instance)
                 .map(metrics -> filterByInstance(metrics, instance, regex));
+
+        Instant end = Instant.now();
+        double durationSeconds = Duration.between(start, end).toNanos() / 1_000_000_000.0;
+
+        return rawMetrics.map(metrics -> metrics + "\n"
+                + "# HELP snmp_scrape_duration_seconds Total SNMP time scrape took (cached read).\n"
+                + "# TYPE snmp_scrape_duration_seconds gauge\n"
+                + "snmp_scrape_duration_seconds{source=\"cached\"} " + durationSeconds + "\n");
     }
 
     @Override
     public Optional<String> forceRefreshMetrics(String instance, boolean regex) {
-        return cachedMetrics.refreshMetrics(instance);
+        Instant start = Instant.now();
+
+        Optional<String> refreshed = cachedMetrics.refreshMetrics(instance);
+
+        Instant end = Instant.now();
+        double durationSeconds = Duration.between(start, end).toNanos() / 1_000_000_000.0;
+
+        return refreshed.map(metrics -> metrics + "\n"
+                + "# HELP snmp_scrape_duration_seconds Total SNMP time scrape took (forced, real-time read).\n"
+                + "# TYPE snmp_scrape_duration_seconds gauge\n"
+                + "snmp_scrape_duration_seconds{source=\"uncached\"} " + durationSeconds + "\n");
     }
 
     private String formatMetrics(String rawMetrics) {
