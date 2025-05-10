@@ -112,31 +112,33 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
                 });
     }
 
-
     private String walkMetrics(Snmp snmp, Target<UdpAddress> target, String instance) throws IOException {
         Instant start = Instant.now();
         StringBuilder sb = new StringBuilder();
 
-        // --- HELP/TYPE for sysUpTime ---
+        // --- sysUpTime ---
         sb.append("# HELP sysUpTime system uptime in hundredths of a second - 1.3.6.1.2.1.1.3.0\n");
         sb.append("# TYPE sysUpTime gauge\n");
-
-        // --- Fetch sysUpTime ---
         PDU sysPdu = new PDU();
         sysPdu.add(new VariableBinding(new OID(SYS_UPTIME)));
         sysPdu.setType(PDU.GET);
         ResponseEvent<UdpAddress> sysResp = snmp.get(sysPdu, target);
         if (sysResp.getResponse() != null && !sysResp.getResponse().getVariableBindings().isEmpty()) {
             Variable uptime = sysResp.getResponse().get(0).getVariable();
-            sb.append(String.format("sysUpTime{instance=\"%s\"} %s\n", instance, uptime));
+
+            if (uptime instanceof TimeTicks) {
+                long hundredths = ((TimeTicks) uptime).toMilliseconds() / 10;
+                double seconds = hundredths / 100.0;
+                sb.append(String.format("sysUpTime{instance=\"%s\"} %.2f\n", instance, seconds));
+            }
+
         }
 
-        // --- Walk common string columns ---
+        // --- Walk identifiers ---
         Map<Integer, String> ifDescr = walkStringColumn(snmp, target, IF_DESCR);
-        Map<Integer, String> ifName = walkStringColumn(snmp, target, IF_NAME);
+        Map<Integer, String> ifName  = walkStringColumn(snmp, target, IF_NAME);
         Map<Integer, String> ifAlias = walkStringColumn(snmp, target, IF_ALIAS);
 
-        // --- Build InterfaceInfo map ---
         Map<Integer, InterfaceInfo> interfaces = new HashMap<>();
         for (Integer idx : ifDescr.keySet()) {
             interfaces.put(idx, new InterfaceInfo(
@@ -147,44 +149,40 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
             ));
         }
 
-        Map<String, Map<Integer, Long>> metricData = new HashMap<>();
-        for (MetricInfo metric : METRICS.values()) {
-            if (!metric.walkable()) continue;
-            Map<Integer, Long> result = null;
+        // --- Emit metrics grouped by type ---
+        for (var entry : METRICS.entrySet()) {
+            String metricName = entry.getKey();
+            MetricInfo info = entry.getValue();
+            if (info.oid().startsWith("custom.")) continue; // Skip custom metrics (e.g., histograms)
 
-            try {
-                result = walkLongColumn(snmp, target, metric.oid());
+            sb.append(String.format("# HELP %s %s - %s\n", metricName, info.help(), info.oid()));
+            sb.append(String.format("# TYPE %s %s\n", metricName, info.type()));
 
-                if (!result.isEmpty()) {
-//                    emitMetricHeader(sb, metric.name(), result);
-                    metricData.put(metric.name(), result);
+            Map<Integer, Long> values = walkLongColumn(snmp, target, info.oid());
+            for (var idx : values.keySet()) {
+                InterfaceInfo iface = interfaces.get(idx);
+                if (iface != null) {
+                    sb.append(render(metricName, iface, instance, values.get(idx)));
                 }
-
-            } catch (IOException e) {
-                log.warn("Skipping metric {} due to OID error: {}", metric.name(), e.getMessage());
             }
         }
 
-        for (Map.Entry<Integer, InterfaceInfo> entry : interfaces.entrySet()) {
-            Integer idx = entry.getKey();
-            InterfaceInfo iface = entry.getValue();
+        // --- Histograms ---
+        for (var iface : interfaces.values()) {
+            long in  = walkLongColumn(snmp, target, METRICS.get("ifHCInOctets").oid())
+                    .getOrDefault(iface.index(), 0L);
+            long out = walkLongColumn(snmp, target, METRICS.get("ifHCOutOctets").oid())
+                    .getOrDefault(iface.index(), 0L);
+            long totalOctets = in + out;
 
-            for (Map.Entry<String, Map<Integer, Long>> metricEntry : metricData.entrySet()) {
-                String metric = metricEntry.getKey();
-                long value = metricEntry.getValue().getOrDefault(idx, 0L);
-                emitMetricHeader(sb, metric, metricEntry.getValue());
-                sb.append(render(metric, iface, instance, value));
-            }
+            long highSpeed = walkLongColumn(snmp, target, METRICS.get("ifHighSpeed").oid())
+                    .getOrDefault(iface.index(), 0L);
+            long speed = highSpeed > 0
+                    ? highSpeed * 1_000_000L
+                    : walkLongColumn(snmp, target, METRICS.get("ifSpeed").oid())
+                    .getOrDefault(iface.index(), 0L);
 
-            // Optional cumulative histogram
-            long in = metricData.getOrDefault("ifHCInOctets", Map.of()).getOrDefault(idx, 0L);
-            long out = metricData.getOrDefault("ifHCOutOctets", Map.of()).getOrDefault(idx, 0L);
-            long speedBps = metricData.getOrDefault("ifHighSpeed", Map.of()).getOrDefault(idx, 0L) * 1_000_000L;
-            if (speedBps == 0) {
-                speedBps = metricData.getOrDefault("ifSpeed", Map.of()).getOrDefault(idx, 0L);
-            }
-            long total = in + out;
-            histogramService.renderUtilizationHistogram(instance, iface.ifName(), total, speedBps)
+            histogramService.renderUtilizationHistogram(instance, iface.ifName(), totalOctets, speed)
                     .ifPresent(sb::append);
         }
 
@@ -219,7 +217,7 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
             if (e.getVariableBindings() != null) {
                 for (VariableBinding vb : e.getVariableBindings()) {
                     try {
-                        results.put(vb.getOid().last(), Long.parseLong(vb.getVariable().toString()));
+                        results.put(vb.getOid().last(), vb.getVariable().toLong());
                     } catch (NumberFormatException ignored) {} //fixme: need to do something much better here
                 }
             }
