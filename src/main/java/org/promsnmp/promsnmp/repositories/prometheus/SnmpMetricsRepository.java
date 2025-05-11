@@ -115,7 +115,6 @@ public class SnmpMetricsRepository implements PrometheusMetricsRepository {
         Instant start = Instant.now();
         StringBuilder sb = new StringBuilder();
 
-// --- Collect sysUpTime ---
         PDU sysPdu = new PDU();
         sysPdu.add(new VariableBinding(new OID(SYS_UPTIME)));
         sysPdu.setType(PDU.GET);
