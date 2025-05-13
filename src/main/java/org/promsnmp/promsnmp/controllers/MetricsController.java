@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,9 +34,24 @@ import java.nio.charset.StandardCharsets;
 public class MetricsController {
 
     private final PrometheusMetricsService prometheusMetricsService;
+    private final PrometheusDiscoveryService prometheusDiscoveryService;
 
-    public MetricsController(@Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService) {
+
+    public MetricsController(@Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
+                             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService prometheusDiscoveryService) {
         this.prometheusMetricsService = metricsService;
+        this.prometheusDiscoveryService = prometheusDiscoveryService;
+    }
+
+    @Operation(summary = "Prometheus HTTP Service Discovery", description = "Prometheus Endpoint used to discovery PromSNMP managed Targets")
+    @GetMapping("/targets")
+    public ResponseEntity<String> sampleServices() {
+        return prometheusDiscoveryService.getTargets()
+                .map(services -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .body(services))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("{\"error\": \"File not found\"}"));
     }
 
     @Operation(summary = "Prometheus Metric Endpoint", description = "Scrape SNMP Metrics for a specified Target in the PromSNMP Inventory")
