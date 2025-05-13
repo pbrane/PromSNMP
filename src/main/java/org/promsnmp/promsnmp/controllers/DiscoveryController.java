@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.promsnmp.promsnmp.dto.DiscoveryRequestDTO;
 import org.promsnmp.promsnmp.dto.DiscoverySeedDTO;
 import org.promsnmp.promsnmp.services.DiscoveryManagementService;
@@ -20,22 +19,26 @@ import java.util.UUID;
  * Network Devices.
  */
 
+@Tag(name = "Discovery", description = "Manage SNMP discovery and seeding")
 @RestController
 @RequestMapping("/promsnmp")
-@RequiredArgsConstructor
-@Tag(name = "Discovery", description = "Manage SNMP discovery and seeding")
 public class DiscoveryController {
 
     private final DiscoveryManagementService discoveryService;
     private final DiscoverySeedService seedService;
 
-    @Operation(summary = "Run SNMP discovery or schedule a seed", description = "Submit SNMP agent configuration and targets to initiate discovery or persist a seed for later scheduled polling.")
+    public DiscoveryController(DiscoveryManagementService discoveryService, DiscoverySeedService seedService) {
+        this.discoveryService = discoveryService;
+        this.seedService = seedService;
+    }
+
+    @Operation(summary = "Seed SNMP discovery", description = "Submit SNMP agent configuration and Target list for immediate or scheduled discovery.")
     @PostMapping("/discovery")
     public ResponseEntity<?> handleDiscovery(
-            @Parameter(description = "Run discovery immediately or not", example = "true")
+            @Parameter(description = "Run discovery immediately", example = "true")
             @RequestParam(defaultValue = "true") boolean scheduleNow,
 
-            @Parameter(description = "Also save this discovery configuration as a seed", example = "false")
+            @Parameter(description = "Save this discovery seed (auto true if scheduleNow is false)", example = "false")
             @RequestParam(defaultValue = "false") boolean saveSeed,
 
             @Valid @RequestBody DiscoveryRequestDTO request) {

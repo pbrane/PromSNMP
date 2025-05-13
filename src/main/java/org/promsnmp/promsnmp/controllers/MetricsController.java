@@ -4,6 +4,9 @@ import io.prometheus.metrics.expositionformats.OpenMetricsTextFormatWriter;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.prometheus.metrics.model.snapshots.MetricSnapshot;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,6 +27,7 @@ import java.nio.charset.StandardCharsets;
  * HTTP Service (Targets) Discovery
  */
 
+@Tag(name = "Metrics", description = "Endpoint for Prometheus Metric Scrapes")
 @RestController
 public class MetricsController {
 
@@ -33,14 +37,14 @@ public class MetricsController {
         this.prometheusMetricsService = metricsService;
     }
 
+    @Operation(summary = "Prometheus Metric Endpoint", description = "Scrape SNMP Metrics for a specified Target in the PromSNMP Inventory")
     @GetMapping("/snmp")
     public ResponseEntity<String> snmpMetrics(
-            @RequestParam(required = false)
-            String instance,
-            @RequestParam(required = false, defaultValue = "false")
-            Boolean regex ) {
+            @Parameter(description = "Target in the current Inventory", example = "myrouter.promsnmp.com, 192.168.1.1")
+            @RequestParam(required = true)
+            String target) {
 
-        return prometheusMetricsService.getMetrics(instance, regex)
+        return prometheusMetricsService.getMetrics(target, false)
                 .map(metrics -> ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
                         .body(metrics))
@@ -108,7 +112,7 @@ public class MetricsController {
             for (MetricSnapshot snapshot : snapshots) {
                 boolean match = snapshot.getDataPoints().stream()
                         .anyMatch(dp -> dp.getLabels().stream()
-                                .anyMatch(label -> label.getName().equals("instance") &&
+                                .anyMatch(label -> label.getName().equals("target") &&
                                         label.getValue().equalsIgnoreCase(instance)));
 
                 if (instance == null || instance.isEmpty() || match) {
