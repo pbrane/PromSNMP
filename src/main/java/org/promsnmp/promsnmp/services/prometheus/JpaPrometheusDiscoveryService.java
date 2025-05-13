@@ -25,7 +25,7 @@ public class JpaPrometheusDiscoveryService implements PrometheusDiscoveryService
     }
 
     @Override
-    public Optional<String> getServices() {
+    public Optional<String> getTargets() {
         List<Map<String, Object>> targetGroups = new ArrayList<>();
 
         communityAgentRepo.findAll().forEach(agent -> {

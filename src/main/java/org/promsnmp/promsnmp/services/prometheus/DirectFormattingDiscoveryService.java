@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service("directService")
 public class DirectFormattingDiscoveryService implements PrometheusDiscoveryService, PrometheusMetricsService {
     @Override
-    public Optional<String> getServices() {
+    public Optional<String> getTargets() {
         return Optional.empty();
     }
 

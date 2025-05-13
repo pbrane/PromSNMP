@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This controller supports SNMP based network discovery of SNMP Agents and related
+ * Network Devices.
+ */
+
 @RestController
-@RequestMapping("/discovery")
+@RequestMapping("/promsnmp")
 @RequiredArgsConstructor
 @Tag(name = "Discovery", description = "Manage SNMP discovery and seeding")
 public class DiscoveryController {
@@ -24,9 +29,8 @@ public class DiscoveryController {
     private final DiscoveryManagementService discoveryService;
     private final DiscoverySeedService seedService;
 
-    @PostMapping
-    @Operation(summary = "Run SNMP discovery or schedule a seed",
-            description = "Submit SNMP agent configuration and targets to initiate discovery or persist a seed for later scheduled polling.")
+    @Operation(summary = "Run SNMP discovery or schedule a seed", description = "Submit SNMP agent configuration and targets to initiate discovery or persist a seed for later scheduled polling.")
+    @PostMapping("/discovery")
     public ResponseEntity<?> handleDiscovery(
             @Parameter(description = "Run discovery immediately or not", example = "true")
             @RequestParam(defaultValue = "true") boolean scheduleNow,
@@ -46,16 +50,14 @@ public class DiscoveryController {
         }
     }
 
-    @Operation(summary = "List all discovery seeds",
-            description = "Returns a list of all saved discovery seeds used for scheduled SNMP polling.")
-    @GetMapping
+    @Operation(summary = "List all discovery seeds", description = "Returns a list of all saved discovery seeds used for scheduled SNMP polling.")
+    @GetMapping("/discovery")
     public ResponseEntity<List<DiscoverySeedDTO>> listSeeds() {
         return ResponseEntity.ok(seedService.toDtoList(seedService.findAllSeeds()));
     }
 
-    @Operation(summary = "Get a specific discovery seed",
-            description = "Returns a discovery seed by its UUID.")
-    @GetMapping("/{id}")
+    @Operation(summary = "Get a specific discovery seed", description = "Returns a discovery seed by its UUID.")
+    @GetMapping("/discovery/{id}")
     public ResponseEntity<?> getSeed(
             @Parameter(description = "Discovery seed UUID", required = true)
             @PathVariable UUID id) {
@@ -66,17 +68,15 @@ public class DiscoveryController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Delete all discovery seeds",
-            description = "Removes all saved discovery seed configurations.")
-    @DeleteMapping
+    @Operation(summary = "Delete all discovery seeds", description = "Removes all saved discovery seed configurations.")
+    @DeleteMapping("/discovery")
     public ResponseEntity<?> deleteAllSeeds() {
         seedService.deleteAllSeeds();
         return ResponseEntity.ok("All discovery seeds deleted.");
     }
 
-    @Operation(summary = "Delete a specific discovery seed",
-            description = "Deletes a discovery seed using its UUID.")
-    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a specific discovery seed", description = "Deletes a discovery seed using its UUID.")
+    @DeleteMapping("/discovery/{id}")
     public ResponseEntity<?> deleteSeed(
             @Parameter(description = "Discovery seed UUID", required = true)
             @PathVariable UUID id) {
@@ -87,4 +87,5 @@ public class DiscoveryController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

@@ -6,8 +6,12 @@ import io.prometheus.metrics.model.snapshots.MetricSnapshot;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
+import org.promsnmp.promsnmp.services.PrometheusMetricsService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,9 +22,49 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This Controller supports requests for SNMP Metrics and Prometheus
+ * HTTP Service (Targets) Discovery
+ */
+
 @RestController
 public class MetricsController {
 
+    private final PrometheusMetricsService prometheusMetricsService;
+    private final PrometheusDiscoveryService prometheusDiscoveryService;
+
+    public MetricsController(@Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
+                             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService discoveryService) {
+        this.prometheusMetricsService = metricsService;
+        this.prometheusDiscoveryService = discoveryService;
+    }
+
+    @GetMapping("/snmp")
+    public ResponseEntity<String> snmpMetrics(
+            @RequestParam(required = false)
+            String instance,
+            @RequestParam(required = false, defaultValue = "false")
+            Boolean regex ) {
+
+        return prometheusMetricsService.getMetrics(instance, regex)
+                .map(metrics -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
+                        .body(metrics))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Error reading file"));
+    }
+
+    @GetMapping("/targets")
+    public ResponseEntity<String> getTargets() {
+        return prometheusDiscoveryService.getTargets()
+                .map(services -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .body(services))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("{\"error\": \"File not found\"}"));
+    }
+
+    //experimental
     @GetMapping("/metricsPlain")
     public ResponseEntity<String> getMetricsPlain() throws IOException {
         try {
@@ -52,8 +96,10 @@ public class MetricsController {
         }
     }
 
+    //experimental
     @GetMapping(value = "/metrics2", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
     public void metrics2(HttpServletResponse response) throws IOException {
+
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/openmetrics-text; version=1.0.0; charset=utf-8");
 
@@ -64,20 +110,18 @@ public class MetricsController {
         }
     }
 
+    //experimental
     @GetMapping(value = "/metrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics(
-            @RequestParam(required = false) String instance,
-            HttpServletResponse response) throws IOException {
+    public void metrics(@RequestParam(required = false) String instance, HttpServletResponse response) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
         try (OutputStream output = response.getOutputStream()) {
-            MetricSnapshots all = PrometheusRegistry.defaultRegistry.scrape();
-
+            MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape();
             MetricSnapshots.Builder builder = MetricSnapshots.builder();
 
-            for (MetricSnapshot snapshot : all) {
+            for (MetricSnapshot snapshot : snapshots) {
                 boolean match = snapshot.getDataPoints().stream()
                         .anyMatch(dp -> dp.getLabels().stream()
                                 .anyMatch(label -> label.getName().equals("instance") &&

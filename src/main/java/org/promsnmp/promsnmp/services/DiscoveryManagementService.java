@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.promsnmp.promsnmp.dto.DiscoveryRequestDTO;
 import org.promsnmp.promsnmp.inventory.InventoryPublisher;
-import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscoveryService;
+import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscovery;
 import org.promsnmp.promsnmp.utils.IpUtils;
 import org.springframework.stereotype.Service;
 import static org.promsnmp.promsnmp.utils.Snmp4jUtils.resolveSnmpVersion;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DiscoveryManagementService {
 
-    private final SnmpAgentDiscoveryService discoveryService;
+    private final SnmpAgentDiscovery discoveryService;
     private final DiscoverySeedService seedService;
     private final InventoryPublisher inventoryPublisher;
 

@@ -1,9 +1,12 @@
 package org.promsnmp.promsnmp.inventory.discovery;
 
-import org.promsnmp.promsnmp.model.*;
+import org.promsnmp.promsnmp.model.AgentEndpoint;
+import org.promsnmp.promsnmp.model.CommunityAgent;
+import org.promsnmp.promsnmp.model.NetworkDevice;
+import org.promsnmp.promsnmp.model.UserAgent;
 import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
-import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
 import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
+import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
 import org.promsnmp.promsnmp.snmp.AuthProtocolType;
 import org.promsnmp.promsnmp.snmp.PrivProtocolType;
 import org.promsnmp.promsnmp.snmp.ProtocolValidator;
@@ -11,20 +14,24 @@ import org.promsnmp.promsnmp.utils.Snmpv3Utils;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.security.*;
-import org.snmp4j.smi.*;
+import org.snmp4j.security.SecurityLevel;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
-public class SnmpAgentDiscoveryService {
+public class SnmpAgentDiscovery {
 
     private static final OID SYS_OBJECT_ID_OID = new OID("1.3.6.1.2.1.1.2.0");
     private static final OID SYS_NAME_OID = new OID("1.3.6.1.2.1.1.5.0");
@@ -36,48 +43,17 @@ public class SnmpAgentDiscoveryService {
     private final UserAgentRepository userRepo;
     private final NetworkDeviceRepository deviceRepo;
 
-    public SnmpAgentDiscoveryService(CommunityAgentRepository communityRepo, UserAgentRepository userRepo,
-                                     NetworkDeviceRepository deviceRepo) {
+    public SnmpAgentDiscovery(CommunityAgentRepository communityRepo, UserAgentRepository userRepo,
+                              NetworkDeviceRepository deviceRepo) {
         this.communityRepo = communityRepo;
         this.userRepo = userRepo;
         this.deviceRepo = deviceRepo;
     }
 
-    private Optional<NetworkDevice> loadDeviceFromMib2(Snmp snmp, Target<UdpAddress> target) throws Exception {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GET);
-        pdu.add(new VariableBinding(SYS_NAME_OID));
-        pdu.add(new VariableBinding(SYS_DESCR_OID));
-        pdu.add(new VariableBinding(SYS_CONTACT_OID));
-        pdu.add(new VariableBinding(SYS_LOCATION_OID));
-
-        ResponseEvent<UdpAddress> event = snmp.get(pdu, target);
-        if (event.getResponse() != null && !event.getResponse().getVariableBindings().isEmpty()) {
-            String sysName = null;
-            NetworkDevice device = new NetworkDevice();
-
-            for (VariableBinding vb : event.getResponse().getVariableBindings()) {
-                if (SYS_NAME_OID.equals(vb.getOid())) {
-                    sysName = vb.getVariable().toString();
-                    device.setSysName(sysName);
-                }
-                if (SYS_DESCR_OID.equals(vb.getOid())) device.setSysDescr(vb.getVariable().toString());
-                if (SYS_CONTACT_OID.equals(vb.getOid())) device.setSysContact(vb.getVariable().toString());
-                if (SYS_LOCATION_OID.equals(vb.getOid())) device.setSysLocation(vb.getVariable().toString());
-            }
-
-            if (sysName != null) {
-                return deviceRepo.findBySysNameWithAgents(sysName).or(() -> {
-                    device.setDiscoveredAt(Instant.now());
-                    return Optional.of(deviceRepo.save(device));
-                });
-            }
-        }
-        return Optional.empty();
-    }
-
     @Async("snmpDiscoveryExecutor")
-    public CompletableFuture<Optional<CommunityAgent>> discoverCommunityAgent(InetAddress address, int port, String community) {
+    public CompletableFuture<Optional<CommunityAgent>> discoverCommunityAgent(
+            InetAddress address, int port, String community) {
+
         try {
             CommunityTarget<UdpAddress> target = new CommunityTarget<>();
             target.setCommunity(new OctetString(community));
@@ -108,14 +84,14 @@ public class SnmpAgentDiscoveryService {
                             agent.setReadCommunity(community);
                             agent.setDiscoveredAt(Instant.now());
 
-                            loadDeviceFromMib2(snmp, target).ifPresent(agent::setDevice);
+                            createDeviceFromMib2(snmp, target).ifPresent(agent::setDevice);
 
                             return CompletableFuture.completedFuture(Optional.of(communityRepo.save(agent)));
                         }
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e) { //fixme
             // log as needed
         }
         return CompletableFuture.completedFuture(Optional.empty());
@@ -174,7 +150,7 @@ public class SnmpAgentDiscoveryService {
                 VariableBinding vb = event.getResponse().get(0);
                 if (!vb.getVariable().isException()) {
                     if (userRepo.findByEndpoint(agent.getEndpoint()).isEmpty()) {
-                        loadDeviceFromMib2(snmp, target).ifPresent(agent::setDevice);
+                        createDeviceFromMib2(snmp, target).ifPresent(agent::setDevice);
                         return CompletableFuture.completedFuture(Optional.of(userRepo.save(agent)));
                     }
                 }
@@ -215,4 +191,38 @@ public class SnmpAgentDiscoveryService {
                         .flatMap(Optional::stream)
                         .collect(Collectors.toList()));
     }
+
+    private Optional<NetworkDevice> createDeviceFromMib2(Snmp snmp, Target<UdpAddress> target) throws Exception {
+        PDU pdu = new PDU();
+        pdu.setType(PDU.GET);
+        pdu.add(new VariableBinding(SYS_NAME_OID));
+        pdu.add(new VariableBinding(SYS_DESCR_OID));
+        pdu.add(new VariableBinding(SYS_CONTACT_OID));
+        pdu.add(new VariableBinding(SYS_LOCATION_OID));
+
+        ResponseEvent<UdpAddress> event = snmp.get(pdu, target);
+        if (event.getResponse() != null && !event.getResponse().getVariableBindings().isEmpty()) {
+            String sysName = null;
+            NetworkDevice device = new NetworkDevice();
+
+            for (VariableBinding vb : event.getResponse().getVariableBindings()) {
+                if (SYS_NAME_OID.equals(vb.getOid())) {
+                    sysName = vb.getVariable().toString();
+                    device.setSysName(sysName);
+                }
+                if (SYS_DESCR_OID.equals(vb.getOid())) device.setSysDescr(vb.getVariable().toString());
+                if (SYS_CONTACT_OID.equals(vb.getOid())) device.setSysContact(vb.getVariable().toString());
+                if (SYS_LOCATION_OID.equals(vb.getOid())) device.setSysLocation(vb.getVariable().toString());
+            }
+
+            if (sysName != null) {
+                return deviceRepo.findBySysNameWithAgents(sysName).or(() -> {
+                    device.setDiscoveredAt(Instant.now());
+                    return Optional.of(deviceRepo.save(device));
+                });
+            }
+        }
+        return Optional.empty();
+    }
+
 }

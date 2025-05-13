@@ -27,7 +27,7 @@ public class ResourceBasedService implements PrometheusMetricsService, Prometheu
     }
 
     @Override
-    public Optional<String> getServices() {
+    public Optional<String> getTargets() {
         return discoveryRepository.readServices();
     }
 

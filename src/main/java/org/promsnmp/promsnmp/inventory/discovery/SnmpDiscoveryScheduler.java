@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SnmpDiscoveryScheduler {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final SnmpAgentDiscoveryService discoveryService;
+    private final SnmpAgentDiscovery discoveryService;
     private final InventoryPublisher publisher;
 
     //doing this so we can debug the value
@@ -28,7 +28,7 @@ public class SnmpDiscoveryScheduler {
     @Value("${DISCOVERY_TZ:America/New_York}")
     private String discoveryZone;
 
-    public SnmpDiscoveryScheduler(SnmpAgentDiscoveryService discoveryService, InventoryPublisher publisher) {
+    public SnmpDiscoveryScheduler(SnmpAgentDiscovery discoveryService, InventoryPublisher publisher) {
         log.info("SnmpDiscoveryScheduler constructor called");
         this.discoveryService = discoveryService;
         this.publisher = publisher;

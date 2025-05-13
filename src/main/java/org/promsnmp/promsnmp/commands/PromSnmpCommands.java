@@ -1,6 +1,6 @@
 package org.promsnmp.promsnmp.commands;
 
-import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscoveryService;
+import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscovery;
 import org.promsnmp.promsnmp.model.CommunityAgent;
 import org.promsnmp.promsnmp.model.UserAgent;
 import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
@@ -25,7 +25,7 @@ public class PromSnmpCommands {
     private final PrometheusMetricsService prometheusMetricsService;
     private final PrometheusDiscoveryService prometheusDiscoveryService;
     private final CacheManager cacheManager;
-    private final SnmpAgentDiscoveryService snmpDiscoveryService;
+    private final SnmpAgentDiscovery snmpDiscoveryService;
 
     private final CommunityAgentRepository communityAgentRepository;
     private final UserAgentRepository userAgentRepository;
@@ -33,7 +33,7 @@ public class PromSnmpCommands {
     public PromSnmpCommands(
             @Qualifier("prometheusMetricsService") PrometheusMetricsService prometheusMetricsService,
             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService prometheusDiscoveryService,
-            CacheManager cacheManager, SnmpAgentDiscoveryService snmpDiscoveryService, CommunityAgentRepository communityAgentRepository, UserAgentRepository userAgentRepository) {
+            CacheManager cacheManager, SnmpAgentDiscovery snmpDiscoveryService, CommunityAgentRepository communityAgentRepository, UserAgentRepository userAgentRepository) {
 
         this.prometheusMetricsService = prometheusMetricsService;
         this.prometheusDiscoveryService = prometheusDiscoveryService;
@@ -71,7 +71,7 @@ public class PromSnmpCommands {
 
     @ShellMethod(key = "services", value = "Displays services from prometheus-snmp-services.json")
     public String sampleServices() {
-        return prometheusDiscoveryService.getServices()
+        return prometheusDiscoveryService.getTargets()
                 .orElse("{\"error\": \"File not found\"}");
     }
 
@@ -102,7 +102,7 @@ public class PromSnmpCommands {
 
     @ShellMethod(key = "showInventory", value = "Display Prometheus service discovery targets in JSON format.")
     public String serviceDiscovery() {
-        return prometheusDiscoveryService.getServices()
+        return prometheusDiscoveryService.getTargets()
                 .orElse("{\"error\": \"Unable to generate service discovery output.\"}");
     }
 
