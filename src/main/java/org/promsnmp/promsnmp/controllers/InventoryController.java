@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.promsnmp.promsnmp.dto.InventoryDTO;
 import org.promsnmp.promsnmp.services.InventoryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * This Controller supports import and export of the PromSnmp instances inventory.
@@ -18,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  * and only if the current inventory is empty when in "container mode."
  */
 @Tag(name = "Inventory", description = "Manage PromSNMP Inventory and expose Prometheus Service Discovery Endpoint")
-@RestController("/promsnmp")
+@RestController()
+@RequestMapping("/promsnmp")
 public class InventoryController {
 
     private final InventoryService inventoryService;

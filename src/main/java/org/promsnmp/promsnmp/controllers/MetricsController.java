@@ -101,7 +101,7 @@ public class MetricsController {
             for (MetricSnapshot snapshot : snapshots) {
                 boolean match = snapshot.getDataPoints().stream()
                         .anyMatch(dp -> dp.getLabels().stream()
-                                .anyMatch(label -> label.getName().equals("target") &&
+                                .anyMatch(label -> label.getName().equals("instance") &&
                                         label.getValue().equalsIgnoreCase(target)));
 
                 if (match) {
@@ -149,8 +149,8 @@ public class MetricsController {
     }
 
     //experimental
-    @GetMapping(value = "/metrics2", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics2(HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/allMetrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
+    public void allMetrics(HttpServletResponse response) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/openmetrics-text; version=1.0.0; charset=utf-8");
@@ -163,8 +163,8 @@ public class MetricsController {
     }
 
     //experimental
-    @GetMapping(value = "/metrics3", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics3(@RequestParam(required = false) String instance, HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/filteredMetrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
+    public void filteredMetrics(@RequestParam(required = true) String target, HttpServletResponse response) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -176,10 +176,10 @@ public class MetricsController {
             for (MetricSnapshot snapshot : snapshots) {
                 boolean match = snapshot.getDataPoints().stream()
                         .anyMatch(dp -> dp.getLabels().stream()
-                                .anyMatch(label -> label.getName().equals("target") &&
-                                        label.getValue().equalsIgnoreCase(instance)));
+                                .anyMatch(label -> label.getName().equals("instance") &&
+                                        label.getValue().equalsIgnoreCase(target)));
 
-                if (instance == null || instance.isEmpty() || match) {
+                if (match) {
                     builder.metricSnapshot(snapshot);
                 }
             }
