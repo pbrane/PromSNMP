@@ -69,6 +69,53 @@ public class MetricsController {
                         .body("Error reading file"));
     }
 
+    @GetMapping(value = "/metrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
+    public void metrics(@RequestParam(required = false) String target, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/openmetrics-text; version=1.0.0; charset=utf-8");
+
+        try (OutputStream os = response.getOutputStream()) {
+            // 1. Cached SNMP metrics (classic time series + classic histograms)
+            prometheusMetricsService.getMetrics(target, false)
+                    .ifPresentOrElse(
+                            metrics -> {
+                                try {
+                                    os.write(metrics.getBytes(StandardCharsets.UTF_8));
+                                    os.write("\n".getBytes(StandardCharsets.UTF_8)); // separator
+                                } catch (IOException e) {
+                                    throw new RuntimeException("Failed to write cached time series metrics", e);
+                                }
+                            },
+                            () -> {
+                                try {
+                                    os.write("# no cached time series metrics found\n".getBytes(StandardCharsets.UTF_8));
+                                } catch (IOException e) {
+                                    throw new RuntimeException("Failed to write fallback message", e);
+                                }
+                            });
+
+            // 2. Native histograms filtered by target's "instance" label
+            MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape();
+            MetricSnapshots.Builder builder = MetricSnapshots.builder();
+
+            for (MetricSnapshot snapshot : snapshots) {
+                boolean match = snapshot.getDataPoints().stream()
+                        .anyMatch(dp -> dp.getLabels().stream()
+                                .anyMatch(label -> label.getName().equals("target") &&
+                                        label.getValue().equalsIgnoreCase(target)));
+
+                if (match) {
+                    builder.metricSnapshot(snapshot);
+                }
+            }
+
+            MetricSnapshots filtered = builder.build();
+            new OpenMetricsTextFormatWriter(true, false)
+                    .write(os, filtered);
+        }
+    }
+
+
     //experimental
     @GetMapping("/metricsPlain")
     public ResponseEntity<String> getMetricsPlain() throws IOException {
@@ -116,13 +163,13 @@ public class MetricsController {
     }
 
     //experimental
-    @GetMapping(value = "/metrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics(@RequestParam(required = false) String instance, HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/metrics3", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
+    public void metrics3(@RequestParam(required = false) String instance, HttpServletResponse response) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        try (OutputStream output = response.getOutputStream()) {
+        try (OutputStream os = response.getOutputStream()) {
             MetricSnapshots snapshots = PrometheusRegistry.defaultRegistry.scrape();
             MetricSnapshots.Builder builder = MetricSnapshots.builder();
 
@@ -140,7 +187,7 @@ public class MetricsController {
             MetricSnapshots filtered = builder.build();
 
             new OpenMetricsTextFormatWriter(true, false)
-                    .write(output, filtered);
+                    .write(os, filtered);
         }
     }
 }
