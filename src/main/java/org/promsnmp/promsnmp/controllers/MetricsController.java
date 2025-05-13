@@ -4,14 +4,11 @@ import io.prometheus.metrics.expositionformats.OpenMetricsTextFormatWriter;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.prometheus.metrics.model.snapshots.MetricSnapshot;
 import io.prometheus.metrics.model.snapshots.MetricSnapshots;
-
 import jakarta.servlet.http.HttpServletResponse;
-import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.promsnmp.promsnmp.services.PrometheusMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,12 +28,9 @@ import java.nio.charset.StandardCharsets;
 public class MetricsController {
 
     private final PrometheusMetricsService prometheusMetricsService;
-    private final PrometheusDiscoveryService prometheusDiscoveryService;
 
-    public MetricsController(@Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService,
-                             @Qualifier("prometheusDiscoveryService") PrometheusDiscoveryService discoveryService) {
+    public MetricsController(@Qualifier("prometheusMetricsService") PrometheusMetricsService metricsService) {
         this.prometheusMetricsService = metricsService;
-        this.prometheusDiscoveryService = discoveryService;
     }
 
     @GetMapping("/snmp")
@@ -52,16 +46,6 @@ public class MetricsController {
                         .body(metrics))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Error reading file"));
-    }
-
-    @GetMapping("/targets")
-    public ResponseEntity<String> getTargets() {
-        return prometheusDiscoveryService.getTargets()
-                .map(services -> ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .body(services))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("{\"error\": \"File not found\"}"));
     }
 
     //experimental
