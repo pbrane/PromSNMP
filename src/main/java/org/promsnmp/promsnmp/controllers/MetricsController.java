@@ -70,7 +70,7 @@ public class MetricsController {
     }
 
     @GetMapping(value = "/metrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics(@RequestParam(required = false) String target, HttpServletResponse response) throws IOException {
+    public void metrics(@RequestParam(name = "target", required = true) String target, HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/openmetrics-text; version=1.0.0; charset=utf-8");
 
