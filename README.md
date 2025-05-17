@@ -42,8 +42,21 @@ The application exposes the following endpoints:
 | Endpoint                     | Method | Description                                                          |
 |------------------------------|--------|----------------------------------------------------------------------|
 | `/promSnmp/hello`            | GET    | Returns a simple "Hello World" response                              |
-| `/promSnmp/sample`           | GET    | Returns sample Prometheus metrics from static file                   |
-| `/promSnmp/router`           | GET    | Returns router metrics from static file                              |
+| `/promSnmp/evictCache`       | GET    | Clears the cache of metrics in memory                                |
+| `/promSnmp/authProtocols`    | GET    | Lists the supported SNMP Authorization Protocols                     |
+| `/promSnmp/privProtocols`    | GET    | Lists the supported SNMP Privacy Protocols                           |
+| `/promSnmp/threadPools`      | GET    | Lists the current status of the PromSNMP Threadpools                 |
+| `/targets`                   | GET    | Prometheus HTTP Service Discovery endpoint                           |
+| `/snmp`                      | GET    | Scrapes SNMP metrics for a specified target (param: `target`)        |
+| `/metrics`                   | GET    | OpenMetrics format with native histograms (optional param: `target`) |
+
+## Histogram Support
+
+PromSNMP supports both classic Prometheus histograms and native histograms:
+
+- The `/snmp` endpoint provides standard Prometheus time series and classic histograms
+- The `/metrics` endpoint provides time series, classic histograms, and native histograms using OpenMetrics format
+- Interface utilization metrics are available as histograms, showing bandwidth usage as a percentage
 
 ## 🎢 Deployment playground
 
