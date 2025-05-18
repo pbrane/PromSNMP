@@ -3,6 +3,8 @@ name: promsnmp-build
 run-name: Build PromSNMP
 on:
   workflow_dispatch:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
   push:
     branches:
       - '*'
