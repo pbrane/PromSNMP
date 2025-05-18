@@ -30,29 +30,22 @@
 		<url/>
 	</scm>
 	<properties>
+		<caffeine.version>3.2.0</caffeine.version>
+		<io.prometheus.version>1.4.0-SNAPSHOT</io.prometheus.version>
 		<java.version>21</java.version>
-		<spring-shell.version>3.4.0</spring-shell.version>
+		<lombok.version>1.18.30</lombok.version>
 		<snmp4j-version>3.7.1</snmp4j-version>
 		<spring-cloud.version>2024.0.1</spring-cloud.version>
 		<spring-doc.version>2.8.6</spring-doc.version>
+		<spring-shell.version>3.4.0</spring-shell.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>sonatype-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>21</source>
-					<target>21</target>
+					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -104,43 +97,28 @@
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<version>3.2.0</version>
+			<version>${caffeine.version}</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient</artifactId>
-			<version>0.16.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.prometheus</groupId>
-			<artifactId>simpleclient_common</artifactId>
-			<version>0.16.0</version>
-			<scope>test</scope>
-		</dependency>
--->
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-core</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>${io.prometheus.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-exposition-textformats</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>${io.prometheus.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-exposition-formats</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>${io.prometheus.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-config</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>${io.prometheus.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -193,7 +171,7 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
-									<version>1.18.30</version>
+									<version>${lombok.version}</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
@@ -228,7 +206,7 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
-									<version>1.18.30</version>
+									<version>${lombok.version}</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
@@ -236,29 +214,12 @@
 				</plugins>
 			</build>
 		</profile>
-<!--		<profile>
-			<id>native</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.graalvm.buildtools</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>org.projectlombok</groupId>
-									<artifactId>lombok</artifactId>
-									<version>1.18.30</version>
-								</path>
-							</annotationProcessorPaths>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>-->
 	</profiles>
+	<repositories>
+		<repository>
+			<id>bluebird-prometheus</id>
+			<name>🚀 Maven Bluebird</name>
+			<url>https://repo.maven.bluebirdops.org/prometheus</url>
+		</repository>
+	</repositories>
 </project>
