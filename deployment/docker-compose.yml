@@ -25,7 +25,7 @@ services:
     environment:
       TZ: UTC
       DISCOVERY_TZ: UTC
-      PROM_DISCOVERY: snmp
+      PROM_DISCOVERY_API: snmp
       PROM_METRICS_API: snmp
       METRICS_REPO_API: snmp
       CACHE_STATS_RATE_MILLIS: 15000
