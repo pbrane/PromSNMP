@@ -1,68 +1,45 @@
 package org.promsnmp.promsnmp.services.prometheus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.promsnmp.promsnmp.model.AgentEndpoint;
-import org.promsnmp.promsnmp.repositories.jpa.CommunityAgentRepository;
-import org.promsnmp.promsnmp.repositories.jpa.UserAgentRepository;
-import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.promsnmp.promsnmp.model.NetworkDevice;
+import org.promsnmp.promsnmp.repositories.jpa.NetworkDeviceRepository;
+import org.promsnmp.promsnmp.services.PrometheusDiscoveryService;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service("jpaDiscoveryService")
 public class JpaPrometheusDiscoveryService implements PrometheusDiscoveryService {
 
-    private final CommunityAgentRepository communityAgentRepo;
-    private final UserAgentRepository userAgentRepo;
+    private final NetworkDeviceRepository networkDeviceRepository;
+    private final ObjectMapper objectMapper;
 
-    public JpaPrometheusDiscoveryService(
-            CommunityAgentRepository communityRepo,
-            UserAgentRepository userAgentRepo) {
-
-        this.communityAgentRepo = communityRepo;
-        this.userAgentRepo = userAgentRepo;
+    public JpaPrometheusDiscoveryService(NetworkDeviceRepository networkDeviceRepository, ObjectMapper objectMapper) {
+        this.networkDeviceRepository = networkDeviceRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public Optional<String> getTargets() {
-        List<Map<String, Object>> targetGroups = new ArrayList<>();
+        List<String> sysNames = networkDeviceRepository.findAll().stream()
+                .map(NetworkDevice::getSysName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
 
-        communityAgentRepo.findAll().forEach(agent -> {
-            Map<String, Object> group = new HashMap<>();
-            group.put("targets", List.of(formatTarget(agent.getEndpoint())));
-            group.put("labels", Map.of(
-                    "job", "snmp",
-                    "agent_type", "community",
-                    "device_name", Optional.ofNullable(agent.getDevice())
-                            .map(NetworkDevice::getSysName)
-                            .orElse("unknown")
-            ));
-            targetGroups.add(group);
-        });
+        if (sysNames.isEmpty()) {
+            return Optional.empty();
+        }
 
-        userAgentRepo.findAll().forEach(agent -> {
-            Map<String, Object> group = new HashMap<>();
-            group.put("targets", List.of(formatTarget(agent.getEndpoint())));
-            group.put("labels", Map.of(
-                    "job", "snmp",
-                    "agent_type", "user",
-                    "device_name", Optional.ofNullable(agent.getDevice())
-                            .map(NetworkDevice::getSysName)
-                            .orElse("unknown")
-            ));
-            targetGroups.add(group);
-        });
+        Map<String, List<String>> targetsMap = Map.of("targets", sysNames);
+        List<Map<String, List<String>>> discoveryList = Collections.singletonList(targetsMap);
 
         try {
-            String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(targetGroups);
+            String json = objectMapper.writeValueAsString(discoveryList);
             return Optional.of(json);
         } catch (Exception e) {
             return Optional.empty();
         }
-    }
-
-    private String formatTarget(AgentEndpoint endpoint) {
-        return endpoint.getAddress().getHostAddress() + ":" + endpoint.getPort();
-    }
-}
+    }}
