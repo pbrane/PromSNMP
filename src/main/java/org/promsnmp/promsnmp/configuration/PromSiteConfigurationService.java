@@ -11,10 +11,10 @@ import java.util.Optional;
 @Service
 public class PromSiteConfigurationService {
 
-    @Value("${PROM_TENANT_ID:default_tenant}")
+    @Value("${PROM_TENANT_ID:0123456789}")
     private String tenantId;
 
-    @Value("${PROM_SITE_ID:default_site}")
+    @Value("${PROM_SITE_ID:0123456789}")
     private String siteId;
 
     @Value("${PROM_SITE_LABEL:#{null}}")
@@ -32,7 +32,7 @@ public class PromSiteConfigurationService {
     @Value("${PROM_SITE_LONG:#{null}}")
     private Double longitude;
 
-    //fixme: leaving this here for now even though there is currently a default value for these
+    //fixme: leaving this here for now even though, currently, this will never be null
     @PostConstruct
     public void validate() {
         if (tenantId == null || siteId == null) {
