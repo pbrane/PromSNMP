@@ -44,6 +44,15 @@ public class MetricsController {
     }
 
     @Operation(summary = "Prometheus HTTP Service Discovery", description = "Prometheus Endpoint used to discovery PromSNMP managed Targets")
+    @GetMapping(value = "/targets", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getPrometheusTargets() {
+        return prometheusDiscoveryService.getTargets()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok("[]"));
+    }
+
+    /*
+    @Operation(summary = "Prometheus HTTP Service Discovery", description = "Prometheus Endpoint used to discovery PromSNMP managed Targets")
     @GetMapping("/targets")
     public ResponseEntity<String> sampleServices() {
         return prometheusDiscoveryService.getTargets()
@@ -53,6 +62,7 @@ public class MetricsController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("{\"error\": \"File not found\"}"));
     }
+     */
 
     @Operation(summary = "Prometheus Metric Endpoint", description = "Scrape SNMP Metrics for a specified Target in the PromSNMP Inventory")
     @GetMapping("/snmp")

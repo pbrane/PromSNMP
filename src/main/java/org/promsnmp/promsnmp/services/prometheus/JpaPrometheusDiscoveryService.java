@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service("jpaDiscoveryService")
 public class JpaPrometheusDiscoveryService implements PrometheusDiscoveryService {
@@ -29,10 +30,6 @@ public class JpaPrometheusDiscoveryService implements PrometheusDiscoveryService
                 .filter(name -> name != null && !name.isBlank())
                 .toList();
 
-        if (sysNames.isEmpty()) {
-            return Optional.empty();
-        }
-
         Map<String, List<String>> targetsMap = Map.of("targets", sysNames);
         List<Map<String, List<String>>> discoveryList = Collections.singletonList(targetsMap);
 
@@ -40,6 +37,6 @@ public class JpaPrometheusDiscoveryService implements PrometheusDiscoveryService
             String json = objectMapper.writeValueAsString(discoveryList);
             return Optional.of(json);
         } catch (Exception e) {
-            return Optional.empty();
+            return Optional.empty(); // Log this if desired
         }
     }}
