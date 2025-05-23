@@ -64,6 +64,7 @@ public class MetricsController {
     }
      */
 
+/*
     @Operation(summary = "Prometheus Metric Endpoint", description = "Scrape SNMP Metrics for a specified Target in the PromSNMP Inventory")
     @GetMapping("/snmp")
     public ResponseEntity<String> snmpMetrics(
@@ -78,9 +79,12 @@ public class MetricsController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Error reading file"));
     }
+*/
 
-    @GetMapping(value = "/metrics", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
-    public void metrics(@RequestParam(name = "target", required = true) String target, HttpServletResponse response) throws IOException {
+    @Operation(summary = "Prometheus Metric Endpoint", description = "Scrape SNMP Metrics for a specified Target in the PromSNMP Inventory")
+    @GetMapping(value = "/snmp", produces = "application/openmetrics-text; version=1.0.0; charset=utf-8")
+    public void metrics(@Parameter(description = "Target in the current Inventory", example = "myrouter.promsnmp.com, 192.168.1.1")
+                            @RequestParam(name = "target", required = true) String target, HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/openmetrics-text; version=1.0.0; charset=utf-8");
 
