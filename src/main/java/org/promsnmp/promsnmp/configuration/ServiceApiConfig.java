@@ -14,13 +14,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceApiConfig {
 
-    @Value("${PROM_DISCOVERY_API:demo}")
+    @Value("${PROM_DISCOVERY_API:snmp}")
     private String discoverySvcMode;
 
-    @Value(("${PROM_METRICS_API:demo}"))
+    @Value(("${PROM_METRICS_API:snmp}"))
     private String metricsSvcMode;
 
-    @Value("${METRICS_REPO_API:demo}")
+    @Value("${METRICS_REPO_API:snmp}")
     private String repoMode;
 
     @Bean("prometheusMetricsService")
