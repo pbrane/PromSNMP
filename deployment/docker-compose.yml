@@ -27,6 +27,9 @@ services:
       DISCOVERY_TZ: UTC
       PROM_DISCOVERY_API: snmp
       PROM_METRICS_API: snmp
+      METRICS_REPO_API: snmp
+      PROM_INV_FILE: /app/data/promsnmp-inventory.json
+      PROM_ENCRYPT_KEY: 0123456789ABCDEF
       PROM_TENANT_ID: 0123456789
       PROM_SITE_ID: 0123456789
       PROM_SITE_LABEL: Chicago POP
@@ -34,7 +37,6 @@ services:
       PROM_SITE_ADDR: 350 E Cermak Rd, Chicago, IL 60616, USA
       PROM_SITE_LAT: 41.853742
       PROM_SITE_LONG: -87.618805
-      METRICS_REPO_API: snmp
       CACHE_STATS_RATE_MILLIS: 15000
       CACHE_EXP_MILLIS: 300000
       CACHE_ENTRY_CNT: 10000

@@ -3,24 +3,36 @@ package org.promsnmp.promsnmp.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.promsnmp.promsnmp.dto.DiscoveryRequestDTO;
+import org.promsnmp.promsnmp.inventory.InventoryBackupManager;
 import org.promsnmp.promsnmp.inventory.InventoryPublisher;
 import org.promsnmp.promsnmp.inventory.discovery.SnmpAgentDiscovery;
 import org.promsnmp.promsnmp.utils.IpUtils;
 import org.springframework.stereotype.Service;
-import static org.promsnmp.promsnmp.utils.Snmp4jUtils.resolveSnmpVersion;
 
 import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 
+import static org.promsnmp.promsnmp.utils.Snmp4jUtils.resolveSnmpVersion;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class DiscoveryManagementService {
 
     private final SnmpAgentDiscovery discoveryService;
     private final DiscoverySeedService seedService;
     private final InventoryPublisher inventoryPublisher;
+    private final InventoryBackupManager inventoryBackupManager;
+
+    public DiscoveryManagementService(SnmpAgentDiscovery discoveryService,
+                                      DiscoverySeedService seedService,
+                                      InventoryPublisher inventoryPublisher,
+                                      InventoryBackupManager inventoryBackupManager) {
+        this.discoveryService = discoveryService;
+        this.seedService = seedService;
+        this.inventoryPublisher = inventoryPublisher;
+        this.inventoryBackupManager = inventoryBackupManager;
+    }
 
     public void handleDiscoveryRequest(DiscoveryRequestDTO request, boolean scheduleNow, boolean saveSeed) {
         int snmpVersion = resolveSnmpVersion(request.getVersion());
@@ -81,6 +93,8 @@ public class DiscoveryManagementService {
         } else {
             throw new IllegalArgumentException("Unsupported agent type: " + request.getAgentType());
         }
+
+        inventoryBackupManager.backup();
     }
 
 }
