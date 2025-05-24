@@ -28,7 +28,7 @@ services:
       PROM_DISCOVERY_API: snmp
       PROM_METRICS_API: snmp
       METRICS_REPO_API: snmp
-      PROM_INV_FILE: /app/data/promsnmp-inventory.json
+      PROM_INV_FILE: /app/data/metrics-inventory.json
       PROM_ENCRYPT_KEY: 0123456789ABCDEF
       PROM_TENANT_ID: 0123456789
       PROM_SITE_ID: 0123456789

@@ -27,13 +27,13 @@ make oci
 Start the application locally
 
 ```shell
-java -jar target/promsnmp-*.jar
+java -jar target/metrics-*.jar
 ```
 
 Start the application using Docker
 
 ```shell
-docker run -it --init --rm -p "8082:8080/tcp" local/promsnmp:$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+docker run -it --init --rm -p "8082:8080/tcp" local/metrics:$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 ```
 ## 🔌 API Endpoints
 

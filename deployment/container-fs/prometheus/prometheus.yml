@@ -30,4 +30,4 @@ scrape_configs:
   - job_name: "PromSNMP"
     metrics_path: /promSnmp/sample
     static_configs:
-      - targets: ["promsnmp:8080"]
+      - targets: ["metrics:8080"]

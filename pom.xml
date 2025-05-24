@@ -10,8 +10,8 @@
 	</parent>
 	<groupId>org.promsnmp</groupId>
 	<artifactId>promsnmp</artifactId>
-	<version>0.0.10-SNAPSHOT</version>
-	<name>promsnmp</name>
+	<version>0.0.11-SNAPSHOT</version>
+	<name>promsnmp-metrics</name>
 	<description>Prometheus SNMP Exporter</description>
 	<url/>
 	<licenses>
