@@ -6,10 +6,10 @@ import org.promsnmp.metrics.dto.DiscoveryRequestDTO;
 import org.promsnmp.metrics.dto.DiscoverySeedDTO;
 import org.promsnmp.metrics.model.DiscoverySeed;
 import org.promsnmp.metrics.repositories.jpa.DiscoverySeedRepository;
-import org.promsnmp.metrics.utils.Snmp4jUtils;
+import org.promsnmp.metrics.snmp.Snmp4jUtils;
 import org.springframework.stereotype.Service;
 import org.promsnmp.metrics.utils.IpUtils;
-import static org.promsnmp.metrics.utils.Snmp4jUtils.resolveSnmpVersion;
+import static org.promsnmp.metrics.snmp.Snmp4jUtils.resolveSnmpVersion;
 
 import java.util.List;
 import java.util.Optional;

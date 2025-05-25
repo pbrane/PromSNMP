@@ -1,8 +1,6 @@
-package org.promsnmp.metrics.utils;
+package org.promsnmp.metrics.snmp;
 
 import org.promsnmp.metrics.model.UserAgent;
-import org.promsnmp.metrics.snmp.AuthProtocolMapper;
-import org.promsnmp.metrics.snmp.PrivProtocolMapper;
 import org.snmp4j.Snmp;
 import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.Address;

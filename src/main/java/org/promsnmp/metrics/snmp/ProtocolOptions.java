@@ -1,7 +1,4 @@
-package org.promsnmp.metrics.utils;
-
-import org.promsnmp.metrics.snmp.AuthProtocolType;
-import org.promsnmp.metrics.snmp.PrivProtocolType;
+package org.promsnmp.metrics.snmp;
 
 import java.util.Arrays;
 import java.util.List;

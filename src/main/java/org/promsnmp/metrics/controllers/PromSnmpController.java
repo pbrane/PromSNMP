@@ -2,7 +2,7 @@ package org.promsnmp.metrics.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.promsnmp.metrics.utils.ProtocolOptions;
+import org.promsnmp.metrics.snmp.ProtocolOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;

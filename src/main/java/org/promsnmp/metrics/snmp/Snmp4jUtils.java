@@ -1,4 +1,4 @@
-package org.promsnmp.metrics.utils;
+package org.promsnmp.metrics.snmp;
 
 public class Snmp4jUtils {
 

@@ -12,7 +12,7 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.UUID;
 
-import static org.promsnmp.metrics.utils.Snmp4jUtils.resolveSnmpVersion;
+import static org.promsnmp.metrics.snmp.Snmp4jUtils.resolveSnmpVersion;
 
 @Slf4j
 @Service

@@ -10,7 +10,7 @@ import org.promsnmp.metrics.repositories.jpa.UserAgentRepository;
 import org.promsnmp.metrics.snmp.AuthProtocolType;
 import org.promsnmp.metrics.snmp.PrivProtocolType;
 import org.promsnmp.metrics.snmp.ProtocolValidator;
-import org.promsnmp.metrics.utils.Snmpv3Utils;
+import org.promsnmp.metrics.snmp.Snmpv3Utils;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
