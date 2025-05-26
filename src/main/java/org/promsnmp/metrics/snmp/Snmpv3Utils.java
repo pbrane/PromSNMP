@@ -1,6 +1,6 @@
 package org.promsnmp.metrics.snmp;
 
-import org.promsnmp.metrics.model.UserAgent;
+import org.promsnmp.common.model.UserAgent;
 import org.snmp4j.Snmp;
 import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.Address;

@@ -1,7 +1,7 @@
 package org.promsnmp.metrics.services.prometheus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.promsnmp.metrics.model.NetworkDevice;
+import org.promsnmp.common.model.NetworkDevice;
 import org.promsnmp.metrics.repositories.jpa.NetworkDeviceRepository;
 import org.promsnmp.metrics.services.PrometheusDiscoveryService;
 import org.springframework.stereotype.Service;

@@ -1,9 +1,9 @@
 package org.promsnmp.metrics.repositories.prometheus;
 
-import org.promsnmp.metrics.model.RouterConfig;
+import org.promsnmp.common.model.RouterConfig;
+import org.promsnmp.common.utils.PromFormatUtil;
 import org.promsnmp.metrics.repositories.PrometheusDiscoveryRepository;
 import org.promsnmp.metrics.repositories.PrometheusMetricsRepository;
-import org.promsnmp.metrics.utils.PromFormatUtil;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

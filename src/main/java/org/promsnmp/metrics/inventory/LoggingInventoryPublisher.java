@@ -1,6 +1,6 @@
 package org.promsnmp.metrics.inventory;
 
-import org.promsnmp.metrics.model.Agent;
+import org.promsnmp.common.model.Agent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

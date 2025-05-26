@@ -1,9 +1,9 @@
 package org.promsnmp.metrics.inventory.discovery;
 
 import lombok.extern.slf4j.Slf4j;
+import org.promsnmp.common.model.CommunityAgent;
+import org.promsnmp.common.model.UserAgent;
 import org.promsnmp.metrics.inventory.InventoryPublisher;
-import org.promsnmp.metrics.model.CommunityAgent;
-import org.promsnmp.metrics.model.UserAgent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

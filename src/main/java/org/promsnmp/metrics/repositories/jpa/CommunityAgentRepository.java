@@ -1,7 +1,7 @@
 package org.promsnmp.metrics.repositories.jpa;
 
-import org.promsnmp.metrics.model.CommunityAgent;
-import org.promsnmp.metrics.model.AgentEndpoint;
+import org.promsnmp.common.model.AgentEndpoint;
+import org.promsnmp.common.model.CommunityAgent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

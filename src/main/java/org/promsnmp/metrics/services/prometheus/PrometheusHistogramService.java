@@ -3,12 +3,12 @@ package org.promsnmp.metrics.services.prometheus;
 import io.prometheus.metrics.core.metrics.Histogram;
 import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.prometheus.metrics.model.snapshots.Unit;
-import org.promsnmp.metrics.model.InterfaceInfo;
+import org.promsnmp.common.model.InterfaceInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class PrometheusHistogramService {

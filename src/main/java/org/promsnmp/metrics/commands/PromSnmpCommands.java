@@ -1,12 +1,12 @@
 package org.promsnmp.metrics.commands;
 
+import org.promsnmp.common.model.CommunityAgent;
+import org.promsnmp.common.model.UserAgent;
 import org.promsnmp.metrics.inventory.discovery.SnmpAgentDiscovery;
-import org.promsnmp.metrics.model.CommunityAgent;
-import org.promsnmp.metrics.model.UserAgent;
 import org.promsnmp.metrics.repositories.jpa.CommunityAgentRepository;
 import org.promsnmp.metrics.repositories.jpa.UserAgentRepository;
-import org.promsnmp.metrics.services.PrometheusMetricsService;
 import org.promsnmp.metrics.services.PrometheusDiscoveryService;
+import org.promsnmp.metrics.services.PrometheusMetricsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.shell.standard.ShellComponent;

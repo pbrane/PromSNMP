@@ -1,7 +1,7 @@
 package org.promsnmp.metrics.services.prometheus;
 
 import lombok.extern.slf4j.Slf4j;
-import org.promsnmp.metrics.model.NetworkDevice;
+import org.promsnmp.common.model.NetworkDevice;
 import org.promsnmp.metrics.repositories.PrometheusMetricsRepository;
 import org.promsnmp.metrics.repositories.jpa.NetworkDeviceRepository;
 import org.promsnmp.metrics.services.cache.CachedMetricsService;

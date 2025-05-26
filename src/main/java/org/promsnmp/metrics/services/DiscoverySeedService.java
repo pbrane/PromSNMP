@@ -2,18 +2,19 @@ package org.promsnmp.metrics.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.promsnmp.metrics.dto.DiscoveryRequestDTO;
-import org.promsnmp.metrics.dto.DiscoverySeedDTO;
-import org.promsnmp.metrics.model.DiscoverySeed;
+import org.promsnmp.common.dto.DiscoveryRequestDTO;
+import org.promsnmp.common.dto.DiscoverySeedDTO;
+import org.promsnmp.common.model.DiscoverySeed;
+import org.promsnmp.common.utils.IpUtils;
 import org.promsnmp.metrics.repositories.jpa.DiscoverySeedRepository;
 import org.promsnmp.metrics.snmp.Snmp4jUtils;
 import org.springframework.stereotype.Service;
-import org.promsnmp.metrics.utils.IpUtils;
-import static org.promsnmp.metrics.snmp.Snmp4jUtils.resolveSnmpVersion;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.promsnmp.metrics.snmp.Snmp4jUtils.resolveSnmpVersion;
 
 @Slf4j
 @Service

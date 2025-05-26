@@ -127,7 +127,12 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.promsnmp</groupId>
+			<artifactId>promsnmp-common</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

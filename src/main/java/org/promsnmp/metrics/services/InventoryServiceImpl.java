@@ -1,10 +1,10 @@
 package org.promsnmp.metrics.services;
 
-import org.promsnmp.metrics.dto.DiscoverySeedDTO;
-import org.promsnmp.metrics.dto.InventoryDTO;
+import org.promsnmp.common.dto.DiscoverySeedDTO;
+import org.promsnmp.common.dto.InventoryDTO;
+import org.promsnmp.common.model.DiscoverySeed;
+import org.promsnmp.common.model.NetworkDevice;
 import org.promsnmp.metrics.inventory.InventoryBackupManager;
-import org.promsnmp.metrics.model.DiscoverySeed;
-import org.promsnmp.metrics.model.NetworkDevice;
 import org.promsnmp.metrics.repositories.jpa.NetworkDeviceRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;

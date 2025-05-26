@@ -1,17 +1,20 @@
 package org.promsnmp.metrics.repositories.prometheus;
 
 import lombok.extern.slf4j.Slf4j;
+import org.promsnmp.common.model.Agent;
+import org.promsnmp.common.model.InterfaceInfo;
+import org.promsnmp.common.model.MetricInfo;
+import org.promsnmp.common.model.UserAgent;
 import org.promsnmp.metrics.mappers.AgentToTargetMapper;
-import org.promsnmp.metrics.model.Agent;
-import org.promsnmp.metrics.model.InterfaceInfo;
-import org.promsnmp.metrics.model.MetricInfo;
-import org.promsnmp.metrics.model.UserAgent;
 import org.promsnmp.metrics.repositories.PrometheusMetricsRepository;
 import org.promsnmp.metrics.repositories.jpa.NetworkDeviceRepository;
 import org.promsnmp.metrics.services.prometheus.PrometheusHistogramService;
 import org.promsnmp.metrics.snmp.AuthProtocolMapper;
 import org.promsnmp.metrics.snmp.PrivProtocolMapper;
-import org.snmp4j.*;
+import org.snmp4j.PDU;
+import org.snmp4j.Snmp;
+import org.snmp4j.Target;
+import org.snmp4j.UserTarget;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.security.UsmUser;
 import org.snmp4j.smi.*;

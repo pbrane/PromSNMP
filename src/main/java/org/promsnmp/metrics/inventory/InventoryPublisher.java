@@ -1,6 +1,7 @@
 package org.promsnmp.metrics.inventory;
 
-import org.promsnmp.metrics.model.Agent;
+import org.promsnmp.common.model.Agent;
+
 import java.util.List;
 
 public interface InventoryPublisher {

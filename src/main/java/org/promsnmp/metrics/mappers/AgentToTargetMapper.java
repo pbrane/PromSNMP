@@ -1,9 +1,9 @@
 package org.promsnmp.metrics.mappers;
 
-import org.promsnmp.metrics.model.Agent;
-import org.promsnmp.metrics.model.AgentEndpoint;
-import org.promsnmp.metrics.model.CommunityAgent;
-import org.promsnmp.metrics.model.UserAgent;
+import org.promsnmp.common.model.Agent;
+import org.promsnmp.common.model.AgentEndpoint;
+import org.promsnmp.common.model.CommunityAgent;
+import org.promsnmp.common.model.UserAgent;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.Target;
 import org.snmp4j.UserTarget;

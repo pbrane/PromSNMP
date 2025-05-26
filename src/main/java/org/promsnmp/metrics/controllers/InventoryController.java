@@ -2,7 +2,7 @@ package org.promsnmp.metrics.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.promsnmp.metrics.dto.InventoryDTO;
+import org.promsnmp.common.dto.InventoryDTO;
 import org.promsnmp.metrics.services.InventoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

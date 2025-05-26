@@ -1,11 +1,11 @@
 package org.promsnmp.metrics.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.promsnmp.metrics.dto.DiscoveryRequestDTO;
+import org.promsnmp.common.dto.DiscoveryRequestDTO;
+import org.promsnmp.common.utils.IpUtils;
 import org.promsnmp.metrics.inventory.InventoryBackupManager;
 import org.promsnmp.metrics.inventory.InventoryPublisher;
 import org.promsnmp.metrics.inventory.discovery.SnmpAgentDiscovery;
-import org.promsnmp.metrics.utils.IpUtils;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;

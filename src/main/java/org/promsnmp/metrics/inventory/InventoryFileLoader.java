@@ -3,9 +3,9 @@ package org.promsnmp.metrics.inventory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.promsnmp.metrics.dto.InventoryDTO;
+import org.promsnmp.common.dto.InventoryDTO;
+import org.promsnmp.common.utils.EncryptionUtils;
 import org.promsnmp.metrics.services.InventoryService;
-import org.promsnmp.metrics.utils.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;

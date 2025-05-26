@@ -1,6 +1,6 @@
 package org.promsnmp.metrics.repositories.jpa;
 
-import org.promsnmp.metrics.model.DiscoverySeed;
+import org.promsnmp.common.model.DiscoverySeed;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

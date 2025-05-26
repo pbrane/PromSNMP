@@ -1,9 +1,9 @@
 package org.promsnmp.metrics.inventory.discovery;
 
-import org.promsnmp.metrics.model.AgentEndpoint;
-import org.promsnmp.metrics.model.CommunityAgent;
-import org.promsnmp.metrics.model.NetworkDevice;
-import org.promsnmp.metrics.model.UserAgent;
+import org.promsnmp.common.model.AgentEndpoint;
+import org.promsnmp.common.model.CommunityAgent;
+import org.promsnmp.common.model.NetworkDevice;
+import org.promsnmp.common.model.UserAgent;
 import org.promsnmp.metrics.repositories.jpa.CommunityAgentRepository;
 import org.promsnmp.metrics.repositories.jpa.NetworkDeviceRepository;
 import org.promsnmp.metrics.repositories.jpa.UserAgentRepository;
