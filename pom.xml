@@ -38,6 +38,9 @@
 		<spring-cloud.version>2024.0.1</spring-cloud.version>
 		<spring-doc.version>2.8.6</spring-doc.version>
 		<spring-shell.version>3.4.0</spring-shell.version>
+		<testcontainers.version>1.19.3</testcontainers.version>
+		<mockito.version>5.8.0</mockito.version>
+		<wiremock.version>3.0.1</wiremock.version>
 	</properties>
 	<build>
 		<plugins>
@@ -126,6 +129,31 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+		</dependency>
+		<!-- Additional Test Dependencies -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock-jre8</artifactId>
+			<version>${wiremock.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
 		</dependency>
     </dependencies>
 	<dependencyManagement>
